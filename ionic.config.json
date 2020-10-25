@@ -1,0 +1,7 @@
+{
+  "name": "my-chatbot-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
