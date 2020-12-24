@@ -317,30 +317,6 @@ const MyHealthData: React.FC<MyHealthDataProps> = ({ userId }) => {
 				</IonCard>
 				<IonCard>
 					<IonCardHeader>
-						{/* <IonCardSubtitle>压力</IonCardSubtitle> */}
-						<IonCardTitle>压力</IonCardTitle>
-					</IonCardHeader>
-
-					<IonCardContent>
-							<div id="chartdiv" style={{ width: "100%", height: "300px" }}></div>
-							<div style={{paddingTop: "10px"}}>{ dailyData?.calendarDate || ''}</div>
-							{/* <IonIcon slot="start" icon={addCircle} color="medium" /> */}
-					</IonCardContent>
-				</IonCard>
-				<IonCard>
-					<IonCardHeader>
-						{/* <IonCardSubtitle>压力</IonCardSubtitle> */}
-						<IonCardTitle>压力</IonCardTitle>
-					</IonCardHeader>
-
-					<IonCardContent>
-							<div id="stressPeopleDiv" style={{ width: "100%", height: "300px" }}></div>
-							<div>{ dailyData?.calendarDate || ''}</div>
-					</IonCardContent>
-				</IonCard>
-				<IonCard>
-					<IonCardHeader>
-						{/* <IonCardSubtitle>压力</IonCardSubtitle> */}
 						<IonCardTitle>睡眠</IonCardTitle>
 					</IonCardHeader>
 
