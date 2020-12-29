@@ -20,7 +20,7 @@ import {
   IonDatetime,
   IonAlert
 } from '@ionic/react';
-import './Login.scss';
+import './css/Login.scss';
 // import { setIsLoggedIn, setUsername } from '../data/user/user.actions';
 import { connect } from '../data/connect';
 import { RouteComponentProps, withRouter } from 'react-router';

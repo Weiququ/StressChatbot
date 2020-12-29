@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonPage, IonButtons, IonMenuButton, IonRow, IonCol, IonButton, IonList, IonItem, IonLabel, IonInput, IonText, IonAlert } from '@ionic/react';
-import './Login.scss';
+import './css/Login.scss';
 import { setIsLoggedIn, setUsername, setAvatar, setUserId, setIsBoundGarmin } from '../data/user/user.actions';
 import { RouteComponentProps } from 'react-router';
 import { userLogin } from '../service/userService'

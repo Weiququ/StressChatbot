@@ -9,12 +9,14 @@ import Signup from './pages/Signup'
 import Menu from './components/Menu';
 import Login from './pages/Login';
 import MyHealthData from './pages/MyHealthData';
-import MyHealthDataGlass from './pages/MyHealthDataGlass';
 import StressDetail from './pages/StressDetail';
+import RecordActivity from './pages/RecordActivity';
 import { connect } from './data/connect';
 import { setIsLoggedIn, setUsername, loadUserData } from './data/user/user.actions';
 import RedirectToLogin from './components/RedirectToLogin';
 import BindDevice from './components/BindDevice';
+import { ConfigProvider } from 'antd';
+import zhCN from 'antd/lib/locale/zh_CN';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -35,6 +37,7 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 
+
 interface StateProps {
 }
 
@@ -45,9 +48,12 @@ interface DispatchProps {
 }
 
 const App: React.FC = () => {
+
   return (
     <AppContextProvider>
-      <IonicAppConnected />
+      <ConfigProvider locale={zhCN}>
+        <IonicAppConnected />
+      </ConfigProvider>
     </AppContextProvider>
   );
 };
@@ -82,6 +88,7 @@ const IonicApp: React.FC<IonicAppProps> = ({ setIsLoggedIn, setUsername, loadUse
         }} />
       <Route exact path="/myHealthData" component={MyHealthData} />
       <Route exact path="/stressDetail" component={StressDetail} />
+      <Route exact path="/recordActivity" component={RecordActivity} />
       </IonRouterOutlet>
       </IonSplitPane>
     </IonReactRouter>

@@ -1,5 +1,5 @@
 import React, { Component, useContext, useEffect, useState } from 'react';
-import { IonPopover, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonHeader, IonToolbar, IonTitle, IonContent, IonPage, IonButtons, IonMenuButton, IonIcon } from '@ionic/react';
+import { IonPopover, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonHeader, IonToolbar, IonTitle, IonContent, IonPage, IonButtons, IonMenuButton, IonBackButton } from '@ionic/react';
  // 引入 ECharts 主模块
 import echarts from 'echarts/lib/echarts';
 // 引入环形图
@@ -14,13 +14,16 @@ import { addCircle } from 'ionicons/icons';
 import { getLatestDataService } from '../service/deviceService'
 import { DOMAIN } from '../utils/constants'
 import { connect } from '../data/connect';
+import { chatbubble } from 'ionicons/icons';
+import './css/MyHealthData.scss'
+import { Link } from 'react-router-dom';
 
-const stressData =  [
-	{value: 20800, name: '休息'},
-	{value: 6700, name: '低'},
-	{value: 4350, name: '中'},
-	{value: 2600, name: '高'}
-]
+// const stressData =  [
+// 	{value: 20800, name: '放松'},
+// 	{value: 6700, name: '低'},
+// 	{value: 4350, name: '中'},
+// 	{value: 2600, name: '高'}
+// ]
 
 const avgStress = 30;
 
@@ -83,7 +86,7 @@ const MyHealthData: React.FC<MyHealthDataProps> = ({ userId }) => {
 		console.log('---->dailyData', dailyData)
 		const stressData = [];
 		// @ts-ignore
-		stressData.push({'value': dailyData.restStressDurationInSeconds,  name: '休息'});
+		stressData.push({'value': dailyData.restStressDurationInSeconds,  name: '放松'});
 		// @ts-ignore
 		stressData.push({'value': dailyData.lowStressDurationInSeconds,  name: '低'});
 		// @ts-ignore
@@ -127,7 +130,7 @@ const MyHealthData: React.FC<MyHealthDataProps> = ({ userId }) => {
 				orient: 'vertical',
 				right: 0,
 				bottom: 0,
-				data: ['休息', '低', '中', '高'],
+				data: ['放松', '低', '中', '高'],
 				// padding:[50,0,0,0],
 				// data: [{
 				// 	name: '休息',
@@ -262,6 +265,10 @@ const MyHealthData: React.FC<MyHealthDataProps> = ({ userId }) => {
 		})
 	}
 
+	const navigateToChatPage = () => {
+
+	}
+
 
 	useEffect(() => {
 		console.log('----->useEffect')
@@ -269,10 +276,12 @@ const MyHealthData: React.FC<MyHealthDataProps> = ({ userId }) => {
 		const asyncFetchDailyData = async () => {
 			// TODO: userId记得改回来
 			// const fetchData: any = await getLatestDataService(userId, DOMAIN.STRESS);
-			const fetchDailyData: any = await getLatestDataService(userId, DOMAIN.DAILY);
+			// const fetchDailyData: any = await getLatestDataService(userId, DOMAIN.DAILY);
+			const fetchDailyData: any = await getLatestDataService(11, DOMAIN.DAILY);
 			const dailyData = fetchDailyData.data?.latestData || null;
 			setDailyData(dailyData);
-			const fetchSleepData: any = await getLatestDataService(userId, DOMAIN.SLEEP);
+			// const fetchSleepData: any = await getLatestDataService(userId, DOMAIN.SLEEP);
+			const fetchSleepData: any = await getLatestDataService(11, DOMAIN.SLEEP);
 			const sleepData = fetchSleepData.data?.latestData || null;
 			setSleepData(sleepData);
 		
@@ -297,21 +306,34 @@ const MyHealthData: React.FC<MyHealthDataProps> = ({ userId }) => {
 					<IonButtons slot="start">
 						<IonMenuButton></IonMenuButton>
 					</IonButtons>
-					<IonTitle>我的健康数据</IonTitle>
+					<IonTitle>我的健康数据
+						<IonBackButton style={{ float: "right", marginRight: "10px"}} text="" defaultHref="/chat" />
+					</IonTitle>
+					{/* <img className="chatImg" src='/assets/icon/chatbubble-ellipses-outline.svg'/> */}
+					{/* <img className="chatImg" src='/assets/icon/Chat.png'/> */}
+		
 				</IonToolbar>
 			</IonHeader>
 			<IonContent>
 				<IonCard>
 					<IonCardHeader>
 						{/* <IonCardSubtitle>压力</IonCardSubtitle> */}
-						<IonCardTitle>压力</IonCardTitle>
+						<IonCardTitle>压力
+							<Link to="/stressDetail" style={{color:'black'}}>
+								<img style={{width: "26px", height: "26px", marginLeft: "10px"}} src="assets/icon/graph.png"></img>
+							{/* <a href="/stressDetail" style={{marginLeft: "10px", fontSize: "10px", backgroundImage:"assets/icon/graph.png"}}></a> */}
+							</Link>
+						</IonCardTitle>
 					</IonCardHeader>
 
 					<IonCardContent>
 						<div id="stressPie" style={{ width: "350px", height: "150px" }}></div>
 						<div style={{paddingTop: "10px", float: "left"}}>{ dailyData?.calendarDate || ''}</div>
 						<div style={{paddingTop: "10px", textAlign: "right"}}>
-							<IonIcon slot="start" icon={addCircle} color="medium" style={{width: "24px", height: "24px"}} />
+							{/* <IonIcon slot="start" icon={addCircle} color="medium" style={{width: "24px", height: "24px"}} /> */}
+							<Link to="/recordActivity" style={{color:'black'}}>
+								<img className="wirteImg" src='/assets/icon/write.png'/>
+							</Link>
 						</div>
 					</IonCardContent> 
 				</IonCard>

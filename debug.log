@@ -2,3 +2,11 @@
 [1205/175254.729:ERROR:directory_reader_win.cc(43)] FindFirstFile: 系统找不到指定的路径。 (0x3)
 [1211/223241.750:ERROR:directory_reader_win.cc(43)] FindFirstFile: 系统找不到指定的路径。 (0x3)
 [1216/110209.131:ERROR:directory_reader_win.cc(43)] FindFirstFile: 系统找不到指定的路径。 (0x3)
+[1225/085803.389:ERROR:directory_reader_win.cc(43)] FindFirstFile: 系统找不到指定的路径。 (0x3)
+[1225/085803.477:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\a0d7b3fc-71fe-4d51-9db4-cbcab842a4ba: 系统找不到指定的路径。 (0x3)
+[1225/151619.330:ERROR:process_info.cc(359)] UncheckedAllocate
+[1225/151845.098:ERROR:process_info.cc(359)] UncheckedAllocate
+[1226/120134.435:ERROR:directory_reader_win.cc(43)] FindFirstFile: 系统找不到指定的路径。 (0x3)
+[1227/121307.332:ERROR:directory_reader_win.cc(43)] FindFirstFile: 系统找不到指定的路径。 (0x3)
+[1228/130131.255:ERROR:directory_reader_win.cc(43)] FindFirstFile: 系统找不到指定的路径。 (0x3)
+[1229/090537.102:ERROR:process_info.cc(359)] UncheckedAllocate
