@@ -103,6 +103,7 @@ img.profile-pic.right {
 	background-color: #eeeff0;
 	float: left;
 	margin-left: 55px;
+	/* margin-left: 10px; */
 	font-family: 'Microsoft Yahei';
 }
 
@@ -117,6 +118,7 @@ img.profile-pic.right {
 	color: #fff;
 	float: right;
 	margin-right: 55px;
+	/* margin-right: 10px; */
 }
 
 .chat-bubble.right:before {

@@ -23,7 +23,7 @@ import { send } from 'ionicons/icons/index';
 import { Message } from '../models/Message';
 import { User } from '../models/User';
 import { formatDate, secondToTime } from '../utils/handleDate'
-import { getSleepAnswer } from '../service/chatService'
+import { getSleepAnswer, getRasaAnswer } from '../service/chatService'
 import 'antd/dist/antd.css';
 
 // 引入 ECharts 主模块
@@ -832,7 +832,8 @@ const Chat: React.FC<MyProps> = ({ user }) => {
 		userId: chatbot.id,
 		username: chatbot.username,
 		avatar: chatbot.avatar,
-		text: ["您好，关于压力和睡眠的问题都可以问我哦~", "记录日常活动"]	
+		// text: ["您好，关于压力和睡眠的问题都可以问我哦~", "记录日常活动"]	
+		text: ["您好，关于压力的定义、症状、常见的产生原因、类型、缓解方法、检测机制都可以问我哦~"]	
 	}
 
 	const [userMessageText, setUserMessageText] = useState<string>();
@@ -869,9 +870,21 @@ const Chat: React.FC<MyProps> = ({ user }) => {
 			text: '对不起，这个问题我还不会哦，你可以问我其他问题'
 		}
 		scrollToBottom()
-		getSleepAnswer(question || '').then(data => {
-			if (data && data.answer) {
-				responseMessage.text = data.answer
+		// getSleepAnswer(question || '').then(data => {
+		// 	if (data && data.answer) {
+		// 		responseMessage.text = data.answer
+		// 	}
+		// 	setMessages(messages => [...messages, responseMessage])
+		// 	setMessageNum(messgeNum => messgeNum + 1)
+		// 	scrollToBottom()
+		// })
+
+		getRasaAnswer(question || '').then(data => {
+			console.log(data)
+			const {recipient_id, text} = data
+			
+			if (data && data.text) {
+				responseMessage.text = text
 			}
 			setMessages(messages => [...messages, responseMessage])
 			setMessageNum(messgeNum => messgeNum + 1)
@@ -1147,7 +1160,7 @@ const Chat: React.FC<MyProps> = ({ user }) => {
 			
 		</IonPage>
 	);
-  };
+};
   
 export default Chat;
 
@@ -1159,7 +1172,8 @@ const chatbot = {
 
 const user = {
 	id: 2,
-	avatar: '/assets/icon/user.jpeg',
+	// avatar: '/assets/icon/user.jpeg',
+	avatar: '/assets/icon/default.png',
 	username: 'Mary',
 	password: '',
 	gender: 'secret',

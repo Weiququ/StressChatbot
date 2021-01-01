@@ -3,7 +3,6 @@ import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, IonSplitPane } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { AppContextProvider } from './data/AppContext';
-import Home from './pages/Home';
 import Chat from './pages/Chat'
 import Signup from './pages/Signup'
 import Menu from './components/Menu';
@@ -68,31 +67,31 @@ const IonicApp: React.FC<IonicAppProps> = ({ setIsLoggedIn, setUsername, loadUse
 
   return (
     <IonApp>
-    <IonReactRouter>
-    <IonSplitPane contentId="main">
-      <Menu />
-      <IonRouterOutlet id="main">
-        {/* <Route path="/home" component={Home} exact={true} /> */}
-        <Route exact path="/" render={() => <Redirect to="/chat" />} />
-        <Route exact path="/chat" component={Chat} />
-        <Route exact path="/signup" component={Signup} />
-        <Route exact path="/login" component={Login} />
-        <Route path="/logout" render={() => {
-          return <RedirectToLogin
-            setIsLoggedIn={setIsLoggedIn}
-            setUsername={setUsername}
-          />;
-        }} />
-        <Route path="/bindDevice" render={() => {
-          return <BindDevice />;
-        }} />
-      <Route exact path="/myHealthData" component={MyHealthData} />
-      <Route exact path="/stressDetail" component={StressDetail} />
-      <Route exact path="/recordActivity" component={RecordActivity} />
-      </IonRouterOutlet>
-      </IonSplitPane>
-    </IonReactRouter>
-  </IonApp>
+      <IonReactRouter>
+        <IonSplitPane contentId="main">
+          <Menu />
+          <IonRouterOutlet id="main">
+            {/* <Route path="/home" component={Home} exact={true} /> */}
+            <Route exact path="/" render={() => <Redirect to="/chat" />} />
+            <Route exact path="/chat" component={Chat} />
+            <Route exact path="/signup" component={Signup} />
+            <Route exact path="/login" component={Login} />
+            <Route path="/logout" render={() => {
+              return <RedirectToLogin
+                setIsLoggedIn={setIsLoggedIn}
+                setUsername={setUsername}
+              />;
+            }} />
+            <Route path="/bindDevice" render={() => {
+              return <BindDevice />;
+            }} />
+            <Route exact path="/myHealthData" component={MyHealthData} />
+            <Route exact path="/stressDetail" component={StressDetail} />
+            <Route exact path="/recordActivity" component={RecordActivity} />
+          </IonRouterOutlet>
+        </IonSplitPane>
+      </IonReactRouter>
+    </IonApp>
   )
 }
 

@@ -51,6 +51,9 @@ interface StressDetailProps extends RouteComponentProps, StateProps { }
 // const Menu: React.FC<MenuProps> = ({ darkMode, history, isAuthenticated, setDarkMode, menuEnabled }) => {
 
 const StressDetail: React.FC<StressDetailProps> = ({ userId, history }) => {
+	
+	console.log('----->userId', userId)
+
 
 	// const stressDetail = {
 	// 	"summaryId" : "x2fe5bde-5fe21800-15180",
@@ -595,9 +598,9 @@ const StressDetail: React.FC<StressDetailProps> = ({ userId, history }) => {
 		// } 
 		// const stressPie = echarts.init(stressPieDiv);
 
-		const stressPie = echarts.init(document.getElementById('stressPie'));
+		const stressPie2 = echarts.init(document.getElementById('stressPie2'));
 
-		stressPie.setOption({
+		stressPie2.setOption({
       // title: {
       //   text: '压力比例',
       //   left: '75',
@@ -694,7 +697,13 @@ const StressDetail: React.FC<StressDetailProps> = ({ userId, history }) => {
 					} else if (params[0].value === -1) {
 						return params[0].name + '<br/><br/>' 
 							+ "无法测量"
-					} else {
+					} else if (params[0].value === 94) {
+						return params[0].name + '<br/><br/>' 
+						+ params[0].marker
+						+ params[0].seriesName + ' : ' + params[0].value+'<br/><br/>'
+						+ "运动后交感神经系统活动增加，导致HRV值降低，压力值升高"
+					}
+					 else {
 						return params[0].name + '<br/><br/>' 
 							+ params[0].marker
 							+ params[0].seriesName + ' : ' + params[0].value+'<br/>'
@@ -780,31 +789,40 @@ const StressDetail: React.FC<StressDetailProps> = ({ userId, history }) => {
 				orient: "horizontal",                         //图例排列方向
 				textGap: 5, //文字到图标的距离
 				pieces: [
-				{
-					gt: 0,
-					lte: 25,
-					color: '#3399ff',
-					label: "0-25 放松",
-				}, {
-					gt: 25,
-					lte: 50,
-					color: '#f0c060',
-					label: "25-50 低",
-				}, {
-					gt: 50,
-					lte: 75,
-					color: '#f59e42',
-					label: "50-75 中",
-				}, {
-					gt: 75,
-					lte: 100,
-					color: '#f56642',
-					label: "75-100 高",
-				}, {
-					value: -10,
-					label: '活动中',
-					color: '#ADADAD',
-				}],
+					{
+						gt: 0,
+						lte: 25,
+						color: '#3399ff',
+						label: "放松",
+					},
+					{
+						gt: 25,
+						lte: 100,
+						color: '#f0c060',
+						label: "有压力"
+					},
+					// , {
+					// 	gt: 25,
+					// 	lte: 50,
+					// 	color: '#f0c060',
+					// 	label: "25-50 低",
+					// }, {
+					// 	gt: 50,
+					// 	lte: 75,
+					// 	color: '#f59e42',
+					// 	label: "50-75 中",
+					// }, {
+					// 	gt: 75,
+					// 	lte: 100,
+					// 	color: '#f56642',
+					// 	label: "75-100 高",
+					// }
+					{
+						value: -10,
+						label: '活动中',
+						color: '#ADADAD',
+					}
+				],
 			},
 			series: {
 				name: '压力值',
@@ -859,7 +877,7 @@ const StressDetail: React.FC<StressDetailProps> = ({ userId, history }) => {
 				</IonToolbar>
 			</IonHeader>
 			<IonContent fullscreen>
-				<div id="stressPie" style={{ width: "700px", height: "150px", marginTop: "30px" }}></div>
+				<div id="stressPie2" style={{ width: "700px", height: "150px", marginTop: "30px" }}></div>
 				<div id="stressDetailChart" style={{width: "800px", height: "300px", marginTop: "30px"}}></div>
 				<div style={{paddingTop: "10px", textAlign: "right", paddingRight: "200px"}}>
 					<Link to="/recordActivity" style={{color:'black'}}>

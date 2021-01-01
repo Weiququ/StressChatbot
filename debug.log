@@ -10,3 +10,83 @@
 [1227/121307.332:ERROR:directory_reader_win.cc(43)] FindFirstFile: 系统找不到指定的路径。 (0x3)
 [1228/130131.255:ERROR:directory_reader_win.cc(43)] FindFirstFile: 系统找不到指定的路径。 (0x3)
 [1229/090537.102:ERROR:process_info.cc(359)] UncheckedAllocate
+[1229/110852.001:ERROR:process_info.cc(359)] UncheckedAllocate
+[1229/185927.855:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\610ffe12-dbb1-4af3-8c6e-369de59596d3: 系统找不到指定的路径。 (0x3)
+[1229/185927.859:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\69bade55-5601-43a5-b696-0a3c93ea5443: 系统找不到指定的路径。 (0x3)
+[1229/185927.868:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\aafb76f2-1759-411b-89a1-3c92cd8136c4: 系统找不到指定的路径。 (0x3)
+[1229/185927.884:ERROR:directory_reader_win.cc(43)] FindFirstFile: 系统找不到指定的路径。 (0x3)
+[0101/215053.702:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0101/220053.705:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0101/220053.709:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\036add45-283e-4984-9825-5dd85e63197e: 系统找不到指定的路径。 (0x3)
+[0101/220053.713:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\0401f167-56c4-4530-863e-d058d5077f57: 系统找不到指定的路径。 (0x3)
+[0101/220053.714:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\07c4ad9e-e4f7-4ad8-9007-77ba1b822839: 系统找不到指定的路径。 (0x3)
+[0101/220053.716:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\09b5fe55-87dc-41bf-a13c-5a6a35f54641: 系统找不到指定的路径。 (0x3)
+[0101/220053.717:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\0c9c4b6c-963f-4ceb-a955-e18a0cfd5fbf: 系统找不到指定的路径。 (0x3)
+[0101/220053.720:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\0dd1d242-a9ad-4742-9682-c6db7487244e: 系统找不到指定的路径。 (0x3)
+[0101/220053.722:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\114bea5a-975b-4f48-b813-96d238fc5664: 系统找不到指定的路径。 (0x3)
+[0101/220053.724:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\154cd043-da04-4a9f-8508-3dbda4b94d83: 系统找不到指定的路径。 (0x3)
+[0101/220053.726:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\1aa8515d-bef5-4994-967e-7990dee33295: 系统找不到指定的路径。 (0x3)
+[0101/220053.729:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\1d4cb709-4225-4718-8918-dad4136005e2: 系统找不到指定的路径。 (0x3)
+[0101/220053.733:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\2b579eeb-618c-40d1-966f-15d0198c0646: 系统找不到指定的路径。 (0x3)
+[0101/220053.735:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\2c25fd3e-ef7a-4c8e-98ce-c109f6576007: 系统找不到指定的路径。 (0x3)
+[0101/220053.737:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\36a14b7e-651a-4a93-8d97-b0860b9f213e: 系统找不到指定的路径。 (0x3)
+[0101/220053.738:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\398ca6cb-fe69-48a7-a9bc-2d792954aed7: 系统找不到指定的路径。 (0x3)
+[0101/220053.739:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\427d4a74-c23e-4446-8119-ebf4f32f4c01: 系统找不到指定的路径。 (0x3)
+[0101/220053.742:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\43c084f8-3ebc-4ca6-af73-7b8620228240: 系统找不到指定的路径。 (0x3)
+[0101/220053.743:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\46e708b1-47ac-4c5d-bfb6-d693fc06b3ad: 系统找不到指定的路径。 (0x3)
+[0101/220053.745:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\51ec67b1-d933-4d02-9833-7fb52aff2d93: 系统找不到指定的路径。 (0x3)
+[0101/220053.746:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\53c94c56-6b9e-44e4-acd9-b419c94bd141: 系统找不到指定的路径。 (0x3)
+[0101/220053.747:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\5400bfde-e123-4304-8404-9595bfe8ea2f: 系统找不到指定的路径。 (0x3)
+[0101/220053.750:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\56641b1e-ef2a-4f3d-af54-810ad1ac6bb2: 系统找不到指定的路径。 (0x3)
+[0101/220053.752:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\5e3580c3-22a6-4c9f-af30-169d92b385fe: 系统找不到指定的路径。 (0x3)
+[0101/220053.754:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\64fa610f-3928-4e81-ab42-d54b21ce7248: 系统找不到指定的路径。 (0x3)
+[0101/220053.756:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\684238e8-db28-42c2-87fc-6a337a3536b9: 系统找不到指定的路径。 (0x3)
+[0101/220053.757:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\6ad42557-b340-46ab-b7b8-ef701614e706: 系统找不到指定的路径。 (0x3)
+[0101/220053.759:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\6f5b4933-49e1-4c07-9b33-d1fe23dd2dfe: 系统找不到指定的路径。 (0x3)
+[0101/220053.761:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\7502cfe7-32f8-4c4b-9b4b-0103827fdcc7: 系统找不到指定的路径。 (0x3)
+[0101/220053.762:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\791d32cb-60b6-49c9-bbdd-8f6be8c35fcb: 系统找不到指定的路径。 (0x3)
+[0101/220053.764:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\7cba7eca-9ca3-48e3-b1cc-9e1b4e21199e: 系统找不到指定的路径。 (0x3)
+[0101/220053.766:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\836ebae4-e42d-4aee-b79f-9fd7756ef2ea: 系统找不到指定的路径。 (0x3)
+[0101/220053.768:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\9240a689-b2f7-4b63-b0db-810e3e8ac149: 系统找不到指定的路径。 (0x3)
+[0101/220053.769:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\955f16a4-210d-4179-bb33-1150984a8661: 系统找不到指定的路径。 (0x3)
+[0101/220053.771:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\962b0b60-fe30-4797-b4a8-2c8e31e2015c: 系统找不到指定的路径。 (0x3)
+[0101/220053.772:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\984c80ef-df22-4854-8668-c87e3500230c: 系统找不到指定的路径。 (0x3)
+[0101/220053.774:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\99997899-2742-4999-8234-15e5606cab68: 系统找不到指定的路径。 (0x3)
+[0101/220053.776:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\9ccfcf6b-fd05-4e81-b901-0676653b9f04: 系统找不到指定的路径。 (0x3)
+[0101/220053.778:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\a069805e-5cef-407f-932b-da18e35acf2f: 系统找不到指定的路径。 (0x3)
+[0101/220053.780:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\a0bb2a61-ff68-404e-9f49-4a1728c92492: 系统找不到指定的路径。 (0x3)
+[0101/220053.781:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\a1a65f98-9b60-4e6a-81ac-2d41811f0c9f: 系统找不到指定的路径。 (0x3)
+[0101/220053.783:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\ae1dfe19-c802-4b3d-8bc2-2dd971f6ac7b: 系统找不到指定的路径。 (0x3)
+[0101/220053.785:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\ae76360a-ff97-49b9-b245-61d96bed18d4: 系统找不到指定的路径。 (0x3)
+[0101/220053.787:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\b1667cbc-41c6-41c3-8d1e-0f33512bf391: 系统找不到指定的路径。 (0x3)
+[0101/220053.790:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\b664395e-5c35-48ed-8eed-41fbfeb0f262: 系统找不到指定的路径。 (0x3)
+[0101/220053.791:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\b695ecac-f563-4fb6-a815-c09b0fa52d12: 系统找不到指定的路径。 (0x3)
+[0101/220053.794:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\bb2e0481-12e5-4782-812c-c7f8e07475f2: 系统找不到指定的路径。 (0x3)
+[0101/220053.795:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\c4afc568-1ea2-410d-b766-6a39be305a55: 系统找不到指定的路径。 (0x3)
+[0101/220053.797:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\c59614f6-9f0f-48c3-958a-cc064ec37c74: 系统找不到指定的路径。 (0x3)
+[0101/220053.799:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\cc9f5d3d-fa46-485e-a945-3a3638ac65ea: 系统找不到指定的路径。 (0x3)
+[0101/220053.801:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\ce9d4dbb-f047-4bab-b7a3-552f5c550079: 系统找不到指定的路径。 (0x3)
+[0101/220053.803:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\cf5a89b8-c7dc-44a2-9ace-c005649573c3: 系统找不到指定的路径。 (0x3)
+[0101/220053.805:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\d1657661-9fd3-49f5-bb4d-255d75da0ada: 系统找不到指定的路径。 (0x3)
+[0101/220053.807:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\e7532df9-24d7-4430-b98c-81d77ab4fd78: 系统找不到指定的路径。 (0x3)
+[0101/220053.808:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\e919b2e0-5d2d-411d-a18a-e1d5aeb00ea9: 系统找不到指定的路径。 (0x3)
+[0101/220053.809:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\f0796b30-184d-4dd2-ad63-0f4a2c51fecc: 系统找不到指定的路径。 (0x3)
+[0101/220053.810:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\f5f8282e-e0f7-42f1-a1c7-21644e9bbf4a: 系统找不到指定的路径。 (0x3)
+[0101/220053.812:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\f8df7726-6a0e-448c-ba85-8028a7e567a4: 系统找不到指定的路径。 (0x3)
+[0101/220053.813:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\f94b1c8d-3e7c-4cba-a9b6-a33e1af8eb53: 系统找不到指定的路径。 (0x3)
+[0101/220053.815:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\weishuhan\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\fc22754d-943c-4c3f-8eff-b7a6fb6e05be: 系统找不到指定的路径。 (0x3)
+[0101/220053.815:ERROR:directory_reader_win.cc(43)] FindFirstFile: 系统找不到指定的路径。 (0x3)
+[0101/220053.816:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0101/220053.817:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0101/220553.708:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0101/222053.709:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0101/223553.725:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0101/225053.733:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0101/230553.735:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0101/232053.748:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0101/233553.755:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0101/235053.755:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0102/001657.328:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0102/003157.331:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0102/004657.338:ERROR:crash_report_database_win.cc(455)] unexpected header
+[0102/010157.339:ERROR:crash_report_database_win.cc(455)] unexpected header

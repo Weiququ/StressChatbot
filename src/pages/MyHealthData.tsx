@@ -10,11 +10,9 @@ import 'echarts/lib/component/title';
 import 'echarts/lib/component/visualMap';
 import 'echarts/lib/component/legend';
 import { secondToHourMinute } from '../utils/handleDate'
-import { addCircle } from 'ionicons/icons';
 import { getLatestDataService } from '../service/deviceService'
 import { DOMAIN } from '../utils/constants'
 import { connect } from '../data/connect';
-import { chatbubble } from 'ionicons/icons';
 import './css/MyHealthData.scss'
 import { Link } from 'react-router-dom';
 
@@ -276,12 +274,12 @@ const MyHealthData: React.FC<MyHealthDataProps> = ({ userId }) => {
 		const asyncFetchDailyData = async () => {
 			// TODO: userId记得改回来
 			// const fetchData: any = await getLatestDataService(userId, DOMAIN.STRESS);
-			// const fetchDailyData: any = await getLatestDataService(userId, DOMAIN.DAILY);
-			const fetchDailyData: any = await getLatestDataService(11, DOMAIN.DAILY);
+			const fetchDailyData: any = await getLatestDataService(userId, DOMAIN.DAILY);
+			// const fetchDailyData: any = await getLatestDataService(11, DOMAIN.DAILY);
 			const dailyData = fetchDailyData.data?.latestData || null;
 			setDailyData(dailyData);
-			// const fetchSleepData: any = await getLatestDataService(userId, DOMAIN.SLEEP);
-			const fetchSleepData: any = await getLatestDataService(11, DOMAIN.SLEEP);
+			const fetchSleepData: any = await getLatestDataService(userId, DOMAIN.SLEEP);
+			// const fetchSleepData: any = await getLatestDataService(11, DOMAIN.SLEEP);
 			const sleepData = fetchSleepData.data?.latestData || null;
 			setSleepData(sleepData);
 		
