@@ -11,7 +11,7 @@ import MyHealthData from './pages/MyHealthData';
 import StressDetail from './pages/StressDetail';
 import RecordActivity from './pages/RecordActivity';
 import { connect } from './data/connect';
-import { setIsLoggedIn, setUsername, loadUserData } from './data/user/user.actions';
+import { setIsLoggedIn, setUsername, loadUserData, setUserId, setAvatar, setGender, setIsBoundGarmin } from './data/user/user.actions';
 import RedirectToLogin from './components/RedirectToLogin';
 import BindDevice from './components/BindDevice';
 import { ConfigProvider } from 'antd';
@@ -44,6 +44,10 @@ interface DispatchProps {
   loadUserData: typeof loadUserData;
   setIsLoggedIn: typeof setIsLoggedIn;
   setUsername: typeof setUsername;
+  setUserId: typeof setUserId;
+  setAvatar: typeof setAvatar;
+  setGender: typeof setGender;
+  setIsBoundGarmin: typeof setIsBoundGarmin;
 }
 
 const App: React.FC = () => {
@@ -59,7 +63,7 @@ const App: React.FC = () => {
 
 interface IonicAppProps extends StateProps, DispatchProps { }
 
-const IonicApp: React.FC<IonicAppProps> = ({ setIsLoggedIn, setUsername, loadUserData }) => {
+const IonicApp: React.FC<IonicAppProps> = ({ loadUserData, setIsLoggedIn, setUsername, setUserId, setAvatar, setGender, setIsBoundGarmin }) => {
   useEffect(() => {
     loadUserData();
     // eslint-disable-next-line
@@ -80,6 +84,10 @@ const IonicApp: React.FC<IonicAppProps> = ({ setIsLoggedIn, setUsername, loadUse
               return <RedirectToLogin
                 setIsLoggedIn={setIsLoggedIn}
                 setUsername={setUsername}
+                setUserId={setUserId}
+                setAvatar={setAvatar}
+                setGender={setGender}
+                setIsBoundGarmin={setIsBoundGarmin}
               />;
             }} />
             <Route path="/bindDevice" render={() => {
@@ -96,7 +104,7 @@ const IonicApp: React.FC<IonicAppProps> = ({ setIsLoggedIn, setUsername, loadUse
 }
 
 const IonicAppConnected = connect<{}, {}, DispatchProps>({
-  mapDispatchToProps: { loadUserData, setIsLoggedIn, setUsername },
+  mapDispatchToProps: { loadUserData, setIsLoggedIn, setUsername, setUserId, setAvatar, setGender, setIsBoundGarmin },
   component: IonicApp
 });
 

@@ -76,7 +76,7 @@ const Register: React.FC<LoginProps> = ({ history }) => {
       // await setIsLoggedIn(true);
       // await setUsernameAction(username);
       const user: User = {
-        id: null,
+        userId: null,
         username,
         password,
         avatar: '',

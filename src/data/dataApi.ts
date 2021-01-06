@@ -1,13 +1,14 @@
 /*
  * @Author: your name
  * @Date: 2020-11-25 19:18:30
- * @LastEditTime: 2020-12-02 11:07:16
+ * @LastEditTime: 2021-01-05 09:04:52
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \my-chatbot-app\src\data\dataApi.ts
  */
 
 import { Plugins } from '@capacitor/core';
+import { DefaultAvatar } from '../utils/constants'
 
 const { Storage } = Plugins;
 
@@ -28,20 +29,21 @@ export const getUserData = async () => {
     Storage.get({ key: GENDER }),
     Storage.get({ key: IS_BINDED_GARMIN })])
   const isLoggedin = await response[0].value === 'true'
-  const userId = await response[1].value 
-  const usename = await response[2].value
-  const avatar = await response[3].value || undefined
-  const gender = await response[4].value || undefined
+  const userId = parseInt(await response[1].value || '') || -1
+  const username = await response[2].value || ''
+  const avatar = isLoggedin? (await response[3].value || DefaultAvatar) : DefaultAvatar
+  const gender = await response[4].value || ''
   const isBoundGarmin = await response[5].value === 'true'
 
   const data = {
     isLoggedin,
     userId,
-    usename,
+    username,
     avatar,
     gender,
     isBoundGarmin
   }
+  console.log('getUserData', data)
   return data;
 }
 
@@ -51,6 +53,7 @@ export const setIsLoggedInData = async (isLoggedIn: boolean) => {
 }
 
 export const setUserIdData = async (id?: number) => {
+  console.log('setUserIdData', id);
   if (!id) {
     await Storage.remove({ key: USER_ID });
   } else {
@@ -59,6 +62,7 @@ export const setUserIdData = async (id?: number) => {
 }
 
 export const setUsernameData = async (username?: string) => {
+  console.log('username', username);
   if (!username) {
     await Storage.remove({ key: USERNAME });
   } else {
@@ -70,7 +74,7 @@ export const setAvatarData = async (avatar?: string ) => {
   if (!avatar) {
     await Storage.remove({ key: AVATAR });
   } else {
-    await Storage.set({ key: AVATAR, value: AVATAR});
+    await Storage.set({ key: AVATAR, value: avatar || DefaultAvatar});
   }
 }
 

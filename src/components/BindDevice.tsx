@@ -32,7 +32,7 @@ const BindDevice: React.FC<BindDeviceProps> = ({ userId, userName, history }) =>
 
 export default connect<{}, StateProps, {}>({
   mapStateToProps: (state) => ({
-		userId: state.user.id,
+		userId: state.user.userId,
 		userName: state.user.username
   }),
   component: withRouter(BindDevice)

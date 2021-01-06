@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-11-22 18:35:52
- * @LastEditTime: 2021-01-02 01:12:37
+ * @LastEditTime: 2021-01-05 19:49:07
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \my-chatbot-app\src\util\constant.ts
@@ -23,3 +23,5 @@ export const DOMAIN = {
     SLEEP: 'sleeps',
     DAILY: 'dailies'
 }
+
+export const DefaultAvatar = "/assets/icon/default.png"

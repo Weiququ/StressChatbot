@@ -1,4 +1,4 @@
-import React, { Component, useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IonPopover, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonHeader, IonToolbar, IonTitle, IonContent, IonPage, IonButtons, IonMenuButton, IonBackButton } from '@ionic/react';
  // 引入 ECharts 主模块
 import echarts from 'echarts/lib/echarts';
@@ -15,27 +15,8 @@ import { DOMAIN } from '../utils/constants'
 import { connect } from '../data/connect';
 import './css/MyHealthData.scss'
 import { Link } from 'react-router-dom';
+import { RouteComponentProps } from 'react-router';
 
-// const stressData =  [
-// 	{value: 20800, name: '放松'},
-// 	{value: 6700, name: '低'},
-// 	{value: 4350, name: '中'},
-// 	{value: 2600, name: '高'}
-// ]
-
-const avgStress = 30;
-
-const sleep = {
-	"calendarDate" : "2020-11-25",  
-  "durationInSeconds" : 28740,  
-  "startTimeInSeconds" : 1606235580,
-  "startTimeOffsetInSeconds" : 28800,
-  "unmeasurableSleepInSeconds" : 5280,
-  "deepSleepDurationInSeconds" : 5460,
-  "lightSleepDurationInSeconds" : 15720,
-  "remSleepInSeconds" : 2280,
-  "awakeDurationInSeconds" : 1140
-}
 
 interface StressSummaryData {
 	calendarDate: string,
@@ -70,10 +51,10 @@ interface StateProps {
 	sleepData: object;
 }
 
-interface MyHealthDataProps extends StateProps {}
+interface MyHealthDataProps extends StateProps, RouteComponentProps {}
 
 
-const MyHealthData: React.FC<MyHealthDataProps> = ({ userId }) => {
+const MyHealthData: React.FC<MyHealthDataProps> = ({ userId, history }) => {
 
 	const [dailyData, setDailyData] = useState<any>({}); 
 	// const [stressSummaryData, setStressSummaryData] = useState<StressSummaryData | undefined>();
@@ -263,12 +244,13 @@ const MyHealthData: React.FC<MyHealthDataProps> = ({ userId }) => {
 		})
 	}
 
-	const navigateToChatPage = () => {
-
-	}
-
 
 	useEffect(() => {
+		
+		if(userId < 0 || !userId) {
+			history.push('/login', {direction: 'none'})
+		}
+		
 		console.log('----->useEffect')
 
 		const asyncFetchDailyData = async () => {
@@ -365,7 +347,7 @@ const MyHealthData: React.FC<MyHealthDataProps> = ({ userId }) => {
 export default connect<{}, StateProps, {}>({
 	// @ts-ignore
   mapStateToProps: (state) => ({
-    userId: state.user.id,
+    userId: state.user.userId,
   }),
   component: MyHealthData
 })

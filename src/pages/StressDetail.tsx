@@ -33,6 +33,7 @@ import { connect } from '../data/connect';
 import { Link } from 'react-router-dom';
 import { RouteComponentProps, withRouter, useLocation } from 'react-router';
 
+
 interface StateProps {
 	userId: number;
 }
@@ -549,6 +550,9 @@ const StressDetail: React.FC<StressDetailProps> = ({ userId, history }) => {
 	const [dailyData, setDailyData] = useState<any>({}); 
 
 	useEffect(() => {
+		if(userId < 0 || !userId) {
+			history.push('/login', {direction: 'none'})
+		}
 
 		const asyncFetchData = async () => {
 			// TODO: userId记得改回来
@@ -864,6 +868,12 @@ const StressDetail: React.FC<StressDetailProps> = ({ userId, history }) => {
 		})
 	}
 	
+	const sleepData = {
+		calendarDate: "2021-01-05",
+		startTime: 1609777980,
+		endTime: 1609804200
+	}
+
 	return (
 		<IonPage>
 			<IonHeader>
@@ -919,7 +929,7 @@ const StressDetail: React.FC<StressDetailProps> = ({ userId, history }) => {
 export default connect<{}, StateProps, {}>({
 	// @ts-ignore
   mapStateToProps: (state) => ({
-    userId: state.user.id,
+    userId: state.user.userId,
   }),
 	component: withRouter(StressDetail)
 })

@@ -14,10 +14,10 @@ const routes = {
   ],
   boundDevicePages: [
     { title: '我的健康数据', path: '/myHealthData', icon: analytics },
-    { title: '解绑Garmin设备', path: '/unbindDevice', icon: watch }
+    // { title: '解绑Garmin设备', path: '/unbindDevice', icon: watch }
   ],
   loggedInPages: [
-    { title: '个人资料', path: '/account', icon: person },
+    // { title: '个人资料', path: '/account', icon: person },
     { title: '退出', path: '/logout', icon: logOut }
   ],
   loggedOutPages: [

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonPage, IonButtons, IonMenuButton, IonRow, IonCol, IonButton, IonList, IonItem, IonLabel, IonInput, IonText, IonAlert } from '@ionic/react';
 import './css/Login.scss';
-import { setIsLoggedIn, setUsername, setAvatar, setUserId, setIsBoundGarmin } from '../data/user/user.actions';
+import { setIsLoggedIn, setUsername, setAvatar, setUserId, setGender, setIsBoundGarmin } from '../data/user/user.actions';
 import { RouteComponentProps } from 'react-router';
 import { userLogin } from '../service/userService'
 import { connect } from '../data/connect';
+import { DefaultAvatar } from '../utils/constants'
 
 interface OwnProps extends RouteComponentProps {}
 
@@ -13,12 +14,13 @@ interface DispatchProps {
   setUsername: typeof setUsername;
   setUserId: typeof setUserId;
   setAvatar: typeof setAvatar;
+  setGender: typeof setGender;
   setIsBoundGarmin: typeof setIsBoundGarmin;
 }
 
 interface LoginProps extends OwnProps,  DispatchProps { }
 
-const Login: React.FC<LoginProps> = ({setIsLoggedIn, history, setUsername: setUsernameAction, setUserId: setUserIdAction, setAvatar: setAvatarAction, setIsBoundGarmin: setIsBoundGarminAction}) => {
+const Login: React.FC<LoginProps> = ({setIsLoggedIn, history, setUsername: setUsernameAction, setUserId: setUserIdAction, setAvatar: setAvatarAction, setGender: setGenderAction, setIsBoundGarmin: setIsBoundGarminAction}) => {
 // const Login: React.FC<LoginProps> = ({ history }) => {
 
   const [username, setUsername] = useState('');
@@ -48,7 +50,8 @@ const Login: React.FC<LoginProps> = ({setIsLoggedIn, history, setUsername: setUs
       await setIsLoggedIn(true)
       await setUserIdAction(user.id)
       await setUsernameAction(user.username)
-      await setAvatarAction(user.avatar) 
+      await setGenderAction(user.gender)
+      await setAvatarAction(user.avatar || DefaultAvatar) 
       console.log('---->isBoundGarmin', isBoundGarmin)
       await setIsBoundGarminAction(isBoundGarmin)
       history.push('/chat', {direction: 'none'})
@@ -129,6 +132,7 @@ export default connect<OwnProps, {}, DispatchProps>({
     setUsername,
     setUserId,
     setAvatar,
+    setGender,
     setIsBoundGarmin
   },
   component: Login
