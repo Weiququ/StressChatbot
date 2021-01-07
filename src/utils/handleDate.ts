@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-26 01:25:00
- * @LastEditTime: 2020-12-28 16:25:05
+ * @LastEditTime: 2021-01-08 01:41:15
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \my-chatbot-app\src\utils\handleDate.ts
@@ -48,4 +48,26 @@ const secondToTime = (secondString: string) => {
 // 	return calendarDate + " " + hour.pad()
 // }
 
-export { formatDate, secondToHourMinute, secondToTime }
+// 获取日期字符串：yyyy-MM-dd或者yyyy-MM-dd HH:mm:ss
+const dateToString = (date: Date, format: String) => {
+	let str = ''
+	const year = date.getFullYear();
+	const month = ((date.getMonth() + 1)+'').padStart(2, '0');
+	const day = (date.getDate()+'').padStart(2, '0');
+
+	if (format === "yyyy-MM-dd") {
+		str += year + "-" + month + "-" + day;  
+	} else {
+		str += date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+	}
+	return str;
+}
+ 
+// 时间字符串转化为时间戳
+const strToTimestamp = (dateStr: string) => {
+	const date = new Date(dateStr);
+	const timestamp = date.getTime() / 1000;
+	return timestamp;
+}
+
+export { formatDate, secondToHourMinute, secondToTime, dateToString, strToTimestamp }

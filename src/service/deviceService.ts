@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-11-26 20:35:55
- * @LastEditTime: 2020-12-15 08:39:11
+ * @LastEditTime: 2021-01-07 14:53:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \my-chatbot-app\src\service\deviceService.ts
@@ -22,7 +22,18 @@ export const getLatestDataService = async (userId: number, domain: string) => {
 		userId,
 		domain
 	}
-	const data = await Fetch.post( GarminApiUrl + '/data/latestData', requestData)
+	const data = await Fetch.post( GarminApiUrl + 'data/latestData', requestData)
 	console.log('---->getLasted data', data)
+	return data
+}
+
+export const getHealthDataByDate = async(userId: number, domain: string, date: string) => {
+	const requestData = {
+		userId,
+		domain,
+		date
+	}
+	const data = await Fetch.post( GarminApiUrl + 'data/byDate', requestData)
+	console.log('---->getHealthDataByDate', data)
 	return data
 }

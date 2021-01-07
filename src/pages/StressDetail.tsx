@@ -556,10 +556,10 @@ const StressDetail: React.FC<StressDetailProps> = ({ userId, history }) => {
 
 		const asyncFetchData = async () => {
 			// TODO: userId记得改回来
-			const fetchDailyData: any = await getLatestDataService(11, DOMAIN.DAILY);
+			const fetchDailyData: any = await getLatestDataService(userId, DOMAIN.DAILY);
 			const dailyData = fetchDailyData.data?.latestData || null;
 			setDailyData(dailyData);
-			const fetchStressData: any = await getLatestDataService(11, DOMAIN.STRESS);
+			const fetchStressData: any = await getLatestDataService(userId, DOMAIN.STRESS);
 			const stressData = fetchStressData.data?.latestData || null;
 			setStressDetail(stressData)
 		}

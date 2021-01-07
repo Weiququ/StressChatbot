@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-11-22 18:35:52
- * @LastEditTime: 2021-01-05 19:49:07
+ * @LastEditTime: 2021-01-08 02:58:04
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \my-chatbot-app\src\util\constant.ts
@@ -15,8 +15,8 @@ export const RasaApiUrl = 'https://stresschatbot.cn/rasa/'
 // export const RasaApiUrl = 'http://localhost:5005/webhooks/rest/webhook'
 
 
-export const GarminApiUrl = 'http://localhost:8081/'
-// export const GarminApiUrl = 'https://stresschatbot.cn/'
+// export const GarminApiUrl = 'http://localhost:8081/'
+export const GarminApiUrl = 'https://stresschatbot.cn/'
 
 export const DOMAIN = {
     STRESS: 'stress',

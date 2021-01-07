@@ -9,13 +9,14 @@ import 'echarts/lib/component/tooltip';
 import 'echarts/lib/component/title';
 import 'echarts/lib/component/visualMap';
 import 'echarts/lib/component/legend';
-import { secondToHourMinute } from '../utils/handleDate'
-import { getLatestDataService } from '../service/deviceService'
+import { secondToHourMinute, dateToString } from '../utils/handleDate'
+import { getLatestDataService, getHealthDataByDate } from '../service/deviceService'
 import { DOMAIN } from '../utils/constants'
 import { connect } from '../data/connect';
 import './css/MyHealthData.scss'
 import { Link } from 'react-router-dom';
 import { RouteComponentProps } from 'react-router';
+
 
 
 interface StressSummaryData {
@@ -246,7 +247,8 @@ const MyHealthData: React.FC<MyHealthDataProps> = ({ userId, history }) => {
 
 
 	useEffect(() => {
-		
+		// TODO: userId记得改回来
+		userId = 11;
 		if(userId < 0 || !userId) {
 			history.push('/login', {direction: 'none'})
 		}
@@ -255,17 +257,16 @@ const MyHealthData: React.FC<MyHealthDataProps> = ({ userId, history }) => {
 
 		const asyncFetchDailyData = async () => {
 			// TODO: userId记得改回来
-			// const fetchData: any = await getLatestDataService(userId, DOMAIN.STRESS);
 			const fetchDailyData: any = await getLatestDataService(userId, DOMAIN.DAILY);
 			// const fetchDailyData: any = await getLatestDataService(11, DOMAIN.DAILY);
 			const dailyData = fetchDailyData.data?.latestData || null;
 			setDailyData(dailyData);
-			const fetchSleepData: any = await getLatestDataService(userId, DOMAIN.SLEEP);
+			const date = dateToString(new Date(), "yyyy-MM-dd") 
+			const fetchSleepData: any = await getHealthDataByDate(11, DOMAIN.SLEEP, date);
 			// const fetchSleepData: any = await getLatestDataService(11, DOMAIN.SLEEP);
-			const sleepData = fetchSleepData.data?.latestData || null;
+			// const sleepData = fetchSleepData.data?.latestData || null;
+			const sleepData = fetchSleepData.data?.data || null;
 			setSleepData(sleepData);
-		
-			// const stressData = await getLatestDataService(11, DOMAIN.STRESS);
 		}
 		asyncFetchDailyData();
 	}, []);

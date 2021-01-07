@@ -1,7 +1,7 @@
 import React from 'react';
 import { bindDevice } from '../service/deviceService'
 import { connect } from '../data/connect';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router'; 
 import { RouteComponentProps } from 'react-router';
 
 

@@ -18,12 +18,12 @@ import {
 } from '@ionic/react';
 import React, { useState, useRef, useEffect } from 'react';
 import './css/Chat.css';
-import { send } from 'ionicons/icons/index';
+import { send, server } from 'ionicons/icons/index';
 import { Message } from '../models/Message';
 import { User } from '../models/User';
-import { formatDate, secondToTime } from '../utils/handleDate'
+import { formatDate, secondToTime, strToTimestamp } from '../utils/handleDate'
 import { getSleepAnswer, getRasaAnswer } from '../service/chatService'
-import { getStressKnowledgeAboutSleep } from '../service/knowledgeService'
+import { getStressKnowledgeAboutSleep, getTodaySleepData, getSleepDataByDate } from '../service/knowledgeService'
 import { connect } from '../data/connect';
 import { DOMAIN } from '../utils/constants'
 import { getLatestDataService } from '../service/deviceService'
@@ -45,7 +45,7 @@ import 'echarts/lib/coord/cartesian/Grid';
 import 'echarts/lib/coord/cartesian/Axis2D';
 import { idText } from 'typescript';
 import { timeStamp } from 'console';
-
+import { RouteComponentProps } from 'react-router';
 
 interface MyProps {
 	messages: Message[];
@@ -62,504 +62,16 @@ interface StressDetail {
 	"timeOffsetStressLevelValues": object
 }
 
-const sleepData = {
-	calendarDate: "2021-01-05",
-	startTime: 1609777980,
-	endTime: 1609804200
-}
+// const sleepData = {
+// 	calendarDate: "2021-01-05",
+// 	startTime: 1609777980,
+// 	endTime: 1609804200
+// }
 
-const Chat: React.FC<MyProps> = ({ user }) => {
+interface ChatProps extends MyProps, RouteComponentProps { }
+
+const Chat: React.FC<ChatProps> = ({ user, history }) => {
 	console.log('chat user', user);
-
-	// const stressDetail = {
-	// 	"summaryId" : "x2fe5bde-5fe21800-15180",
-	// 	"startTimeInSeconds" : 1608652800,
-	// 	"startTimeOffsetInSeconds" : 28800,
-	// 	"durationInSeconds" : 86400,
-	// 	"calendarDate" : "2020-12-23",
-	// 	"timeOffsetStressLevelValues" : {
-	// 		"0" : -1,
-	// 		"180" : -1,
-	// 		"360" : 24,
-	// 		"540" : 17,
-	// 		"720" : 9,
-	// 		"900" : 25,
-	// 		"1080" : 21,
-	// 		"1260" : 22,
-	// 		"1440" : 22,
-	// 		"1620" : -1,
-	// 		"1800" : -2,
-	// 		"1980" : -1,
-	// 		"2160" : 17,
-	// 		"2340" : 22,
-	// 		"2520" : 24,
-	// 		"2700" : 22,
-	// 		"2880" : 18,
-	// 		"3060" : 13,
-	// 		"3240" : 17,
-	// 		"3420" : 19,
-	// 		"3600" : 20,
-	// 		"3780" : 24,
-	// 		"3960" : 19,
-	// 		"4140" : 18,
-	// 		"4320" : 22,
-	// 		"4500" : 25,
-	// 		"4680" : -1,
-	// 		"4860" : 20,
-	// 		"5040" : 14,
-	// 		"5220" : 21,
-	// 		"5400" : 19,
-	// 		"5580" : 19,
-	// 		"5760" : 21,
-	// 		"5940" : 22,
-	// 		"6120" : 23,
-	// 		"6300" : 19,
-	// 		"6480" : 20,
-	// 		"6660" : 20,
-	// 		"6840" : 24,
-	// 		"7020" : 25,
-	// 		"7200" : 24,
-	// 		"7380" : 24,
-	// 		"7560" : 25,
-	// 		"7740" : 25,
-	// 		"7920" : 25,
-	// 		"8100" : 24,
-	// 		"8280" : 24,
-	// 		"8460" : 24,
-	// 		"8640" : 24,
-	// 		"8820" : 24,
-	// 		"9000" : 25,
-	// 		"9180" : 25,
-	// 		"9360" : 29,
-	// 		"9540" : 14,
-	// 		"9720" : 17,
-	// 		"9900" : 26,
-	// 		"10080" : 24,
-	// 		"10260" : 13,
-	// 		"10440" : 25,
-	// 		"10620" : 25,
-	// 		"10800" : 24,
-	// 		"10980" : 25,
-	// 		"11160" : 24,
-	// 		"11340" : 24,
-	// 		"11520" : 24,
-	// 		"11700" : 25,
-	// 		"11880" : 24,
-	// 		"12060" : 24,
-	// 		"12240" : 24,
-	// 		"12420" : 24,
-	// 		"12600" : 24,
-	// 		"12780" : 24,
-	// 		"12960" : 24,
-	// 		"13140" : 24,
-	// 		"13320" : 24,
-	// 		"13500" : 24,
-	// 		"13680" : 23,
-	// 		"13860" : 24,
-	// 		"14040" : 25,
-	// 		"14220" : 20,
-	// 		"14400" : 18,
-	// 		"14580" : 22,
-	// 		"14760" : 22,
-	// 		"14940" : 20,
-	// 		"15120" : 24,
-	// 		"15300" : 19,
-	// 		"15480" : 18,
-	// 		"15660" : 20,
-	// 		"15840" : 24,
-	// 		"16020" : 18,
-	// 		"16200" : 17,
-	// 		"16380" : 22,
-	// 		"16560" : 23,
-	// 		"16740" : 21,
-	// 		"16920" : 23,
-	// 		"17100" : 23,
-	// 		"17280" : 20,
-	// 		"17460" : 13,
-	// 		"17640" : 10,
-	// 		"17820" : 14,
-	// 		"18000" : 13,
-	// 		"18180" : 20,
-	// 		"18360" : 24,
-	// 		"18540" : 15,
-	// 		"18720" : 33,
-	// 		"18900" : -1,
-	// 		"19080" : 23,
-	// 		"19260" : 8,
-	// 		"19440" : 20,
-	// 		"19620" : 24,
-	// 		"19800" : 21,
-	// 		"19980" : -1,
-	// 		"20160" : -1,
-	// 		"20340" : 20,
-	// 		"20520" : 14,
-	// 		"20700" : 4,
-	// 		"20880" : -1,
-	// 		"21060" : 13,
-	// 		"21240" : 16,
-	// 		"21420" : 23,
-	// 		"21600" : 13,
-	// 		"21780" : 15,
-	// 		"21960" : 15,
-	// 		"22140" : 15,
-	// 		"22320" : 18,
-	// 		"22500" : 12,
-	// 		"22680" : -1,
-	// 		"22860" : 17,
-	// 		"23040" : 17,
-	// 		"23220" : 16,
-	// 		"23400" : 21,
-	// 		"23580" : 22,
-	// 		"23760" : 22,
-	// 		"23940" : 15,
-	// 		"24120" : 21,
-	// 		"24300" : 18,
-	// 		"24480" : 17,
-	// 		"24660" : 19,
-	// 		"24840" : 17,
-	// 		"25020" : 20,
-	// 		"25200" : -1,
-	// 		"25380" : -1,
-	// 		"25560" : -1,
-	// 		"25740" : -1,
-	// 		"25920" : -1,
-	// 		"26100" : 21,
-	// 		"26280" : 17,
-	// 		"26460" : 22,
-	// 		"26640" : 23,
-	// 		"26820" : 24,
-	// 		"27000" : 24,
-	// 		"27180" : 23,
-	// 		"27360" : 22,
-	// 		"27540" : 22,
-	// 		"27720" : 12,
-	// 		"27900" : 18,
-	// 		"28080" : 19,
-	// 		"28260" : 18,
-	// 		"28440" : 23,
-	// 		"28620" : 22,
-	// 		"28800" : 20,
-	// 		"28980" : 19,
-	// 		"29160" : 20,
-	// 		"29340" : 23,
-	// 		"29520" : 21,
-	// 		"29700" : 12,
-	// 		"29880" : 22,
-	// 		"30060" : 21,
-	// 		"30240" : 22,
-	// 		"30420" : 20,
-	// 		"30600" : 21,
-	// 		"30780" : 20,
-	// 		"30960" : 17,
-	// 		"31140" : 16,
-	// 		"31320" : 14,
-	// 		"31500" : 17,
-	// 		"31680" : 16,
-	// 		"31860" : 20,
-	// 		"32040" : 19,
-	// 		"32220" : 23,
-	// 		"32400" : 25,
-	// 		"32580" : 24,
-	// 		"32760" : 23,
-	// 		"32940" : 17,
-	// 		"33120" : -1,
-	// 		"33300" : -2,
-	// 		"33480" : 39,
-	// 		"33660" : 21,
-	// 		"33840" : 14,
-	// 		"34020" : 18,
-	// 		"34200" : 17,
-	// 		"34380" : 84,
-	// 		"34560" : -1,
-	// 		"34740" : 47,
-	// 		"34920" : 52,
-	// 		"35100" : 26,
-	// 		"35280" : -1,
-	// 		"35460" : -1,
-	// 		"35640" : 6,
-	// 		"35820" : 6,
-	// 		"36000" : 21,
-	// 		"36180" : 19,
-	// 		"36360" : 24,
-	// 		"36540" : 25,
-	// 		"36720" : 16,
-	// 		"36900" : 18,
-	// 		"37080" : 8,
-	// 		"37260" : 9,
-	// 		"37440" : 15,
-	// 		"37620" : 18,
-	// 		"37800" : 15,
-	// 		"37980" : 17,
-	// 		"38160" : 23,
-	// 		"38340" : 24,
-	// 		"38520" : 22,
-	// 		"38700" : 15,
-	// 		"38880" : 49,
-	// 		"39060" : 26,
-	// 		"39240" : 5,
-	// 		"39420" : 5,
-	// 		"39600" : 16,
-	// 		"39780" : 15,
-	// 		"39960" : 12,
-	// 		"40140" : -2,
-	// 		"40320" : -2,
-	// 		"40500" : -1,
-	// 		"40680" : 37,
-	// 		"40860" : -2,
-	// 		"41040" : -2,
-	// 		"41220" : 67,
-	// 		"41400" : 53,
-	// 		"41580" : 61,
-	// 		"41760" : 46,
-	// 		"41940" : 33,
-	// 		"42120" : -1,
-	// 		"42300" : 25,
-	// 		"42480" : 7,
-	// 		"42660" : 9,
-	// 		"42840" : 8,
-	// 		"43020" : 8,
-	// 		"43200" : 0,
-	// 		"43380" : 2,
-	// 		"43560" : 3,
-	// 		"43740" : -1,
-	// 		"43920" : 7,
-	// 		"44100" : 45,
-	// 		"44280" : 19,
-	// 		"44460" : 37,
-	// 		"44640" : 48,
-	// 		"44820" : 34,
-	// 		"45000" : 33,
-	// 		"45180" : 25,
-	// 		"45360" : 25,
-	// 		"45540" : 13,
-	// 		"45720" : 17,
-	// 		"45900" : 3,
-	// 		"46080" : 1,
-	// 		"46260" : 1,
-	// 		"46440" : 15,
-	// 		"46620" : 25,
-	// 		"46800" : 43,
-	// 		"46980" : 71,
-	// 		"47160" : 48,
-	// 		"47340" : 42,
-	// 		"47520" : 25,
-	// 		"47700" : 23,
-	// 		"47880" : 49,
-	// 		"48060" : 33,
-	// 		"48240" : 23,
-	// 		"48420" : 68,
-	// 		"48600" : 31,
-	// 		"48780" : -1,
-	// 		"48960" : 41,
-	// 		"49140" : 30,
-	// 		"49320" : -1,
-	// 		"49500" : 24,
-	// 		"49680" : -1,
-	// 		"49860" : -2,
-	// 		"50040" : -1,
-	// 		"50220" : 22,
-	// 		"50400" : 28,
-	// 		"50580" : 37,
-	// 		"50760" : 39,
-	// 		"50940" : 32,
-	// 		"51120" : 27,
-	// 		"51300" : 24,
-	// 		"51480" : 22,
-	// 		"51660" : 43,
-	// 		"51840" : 37,
-	// 		"52020" : 37,
-	// 		"52200" : 17,
-	// 		"52380" : 21,
-	// 		"52560" : 31,
-	// 		"52740" : -1,
-	// 		"52920" : 31,
-	// 		"53100" : 24,
-	// 		"53280" : 23,
-	// 		"53460" : 24,
-	// 		"53640" : 34,
-	// 		"53820" : 46,
-	// 		"54000" : 44,
-	// 		"54180" : 36,
-	// 		"54360" : 13,
-	// 		"54540" : 4,
-	// 		"54720" : 25,
-	// 		"54900" : 43,
-	// 		"55080" : 25,
-	// 		"55260" : 22,
-	// 		"55440" : 23,
-	// 		"55620" : 17,
-	// 		"55800" : 18,
-	// 		"55980" : 25,
-	// 		"56160" : 22,
-	// 		"56340" : 53,
-	// 		"56520" : 19,
-	// 		"56700" : 24,
-	// 		"56880" : 24,
-	// 		"57060" : 31,
-	// 		"57240" : 25,
-	// 		"57420" : 18,
-	// 		"57600" : 13,
-	// 		"57780" : 18,
-	// 		"57960" : 17,
-	// 		"58140" : 23,
-	// 		"58320" : 21,
-	// 		"58500" : 13,
-	// 		"58680" : 10,
-	// 		"58860" : 23,
-	// 		"59040" : 23,
-	// 		"59220" : 13,
-	// 		"59400" : 5,
-	// 		"59580" : 5,
-	// 		"59760" : -1,
-	// 		"59940" : 22,
-	// 		"60120" : 20,
-	// 		"60300" : 16,
-	// 		"60480" : 22,
-	// 		"60660" : 14,
-	// 		"60840" : 51,
-	// 		"61020" : 18,
-	// 		"61200" : 16,
-	// 		"61380" : 9,
-	// 		"61560" : 5,
-	// 		"61740" : 15,
-	// 		"61920" : 15,
-	// 		"62100" : 17,
-	// 		"62280" : 16,
-	// 		"62460" : 17,
-	// 		"62640" : 16,
-	// 		"62820" : 11,
-	// 		"63000" : -2,
-	// 		"63180" : -2,
-	// 		"63360" : -1,
-	// 		"63540" : -1,
-	// 		"63720" : 38,
-	// 		"63900" : 40,
-	// 		"64080" : 52,
-	// 		"64260" : 70,
-	// 		"64440" : 64,
-	// 		"64620" : 58,
-	// 		"64800" : 46,
-	// 		"64980" : 38,
-	// 		"65160" : 34,
-	// 		"65340" : 51,
-	// 		"65520" : 20,
-	// 		"65700" : 23,
-	// 		"65880" : 23,
-	// 		"66060" : 24,
-	// 		"66240" : 25,
-	// 		"66420" : 16,
-	// 		"66600" : -1,
-	// 		"66780" : 12,
-	// 		"66960" : 34,
-	// 		"67140" : 14,
-	// 		"67320" : 38,
-	// 		"67500" : 23,
-	// 		"67680" : 16,
-	// 		"67860" : 12,
-	// 		"68040" : 15,
-	// 		"68220" : 19,
-	// 		"68400" : 19,
-	// 		"68580" : 19,
-	// 		"68760" : 16,
-	// 		"68940" : 19,
-	// 		"69120" : 13,
-	// 		"69300" : 15,
-	// 		"69480" : 31,
-	// 		"69660" : 25,
-	// 		"69840" : 25,
-	// 		"70020" : 28,
-	// 		"70200" : 25,
-	// 		"70380" : 37,
-	// 		"70560" : 31,
-	// 		"70740" : 23,
-	// 		"70920" : -1,
-	// 		"71100" : -1,
-	// 		"71280" : 32,
-	// 		"71460" : 84,
-	// 		"71640" : 34,
-	// 		"71820" : 25,
-	// 		"72000" : 16,
-	// 		"72180" : 5,
-	// 		"72360" : 4,
-	// 		"72540" : 5,
-	// 		"72720" : 5,
-	// 		"72900" : 32,
-	// 		"73080" : 26,
-	// 		"73260" : -1,
-	// 		"73440" : 24,
-	// 		"73620" : 18,
-	// 		"73800" : 18,
-	// 		"73980" : 12,
-	// 		"74160" : 20,
-	// 		"74340" : 19,
-	// 		"74520" : 12,
-	// 		"74700" : 21,
-	// 		"74880" : 20,
-	// 		"75060" : 14,
-	// 		"75240" : -1,
-	// 		"75420" : -2,
-	// 		"75600" : 5,
-	// 		"75780" : 8,
-	// 		"75960" : 14,
-	// 		"76140" : 47,
-	// 		"76320" : 21,
-	// 		"76500" : 15,
-	// 		"76680" : 19,
-	// 		"76860" : 8,
-	// 		"77040" : 12,
-	// 		"77220" : 16,
-	// 		"77400" : 9,
-	// 		"77580" : 5,
-	// 		"77760" : 3,
-	// 		"77940" : 2,
-	// 		"78120" : 2,
-	// 		"78300" : 4,
-	// 		"78480" : 3,
-	// 		"78660" : 12,
-	// 		"78840" : 17,
-	// 		"79020" : 9,
-	// 		"79200" : 9,
-	// 		"79380" : 9,
-	// 		"79560" : 15,
-	// 		"79740" : 25,
-	// 		"79920" : 17,
-	// 		"80100" : 10,
-	// 		"80280" : 10,
-	// 		"80460" : 6,
-	// 		"80640" : 5,
-	// 		"80820" : 10,
-	// 		"81000" : 15,
-	// 		"81180" : 8,
-	// 		"81360" : 8,
-	// 		"81540" : 5,
-	// 		"81720" : 7,
-	// 		"81900" : 14,
-	// 		"82080" : 10,
-	// 		"82260" : 3,
-	// 		"82440" : 3,
-	// 		"82620" : 3,
-	// 		"82800" : 3,
-	// 		"82980" : 9,
-	// 		"83160" : 6,
-	// 		"83340" : -1,
-	// 		"83520" : 54,
-	// 		"83700" : 5,
-	// 		"83880" : 10,
-	// 		"84060" : 11,
-	// 		"84240" : 18,
-	// 		"84420" : 16,
-	// 		"84600" : 11,
-	// 		"84780" : 20,
-	// 		"84960" : 23,
-	// 		"85140" : 14,
-	// 		"85320" : 14,
-	// 		"85500" : -1,
-	// 		"85680" : 61,
-	// 		"85860" : 22,
-	// 		"86040" : -1,
-	// 		"86220" : 8
-	// 	}
-	// }
 	const messagesRef = useRef(null);
 
 	const welcomeMessage = 	{
@@ -576,11 +88,12 @@ const Chat: React.FC<MyProps> = ({ user }) => {
 	const [messages, setMessages] = useState<Array<any>>([welcomeMessage]);
 	const [messageNum, setMessageNum] = useState<number>(0);
 	const [showRecordModal, setShowRecordModal] = useState(false);
-	const [showActivitiesModal, setShowActivitiesModal] = useState(false);
 	const [stressDetail, setStressDetail] = useState<StressDetail>();
 	const [stressChartLoading, setStressChartLoading] = useState(true);
-	
-	const [textArray, setTextArray] = useState<Array<any>>([]);
+	const [sleepData, setSleepData] = useState<any>();
+	const [exerciseIndex, setExerciseIndex] = useState<Array<any>>();
+	const [eatIndex, setEatIndex] = useState<Array<any>>();
+
 
 	const sendMessage  = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -642,7 +155,7 @@ const Chat: React.FC<MyProps> = ({ user }) => {
 	
 	useEffect(() => {
 		// @ts-ignore
-		user.userId = 11
+		// user.userId = 11
 		if(user && user.userId >= 0) {
 			// @ts-ignore
 			getStressKnowledgeAboutSleep(user.userId).then(data => {
@@ -682,8 +195,14 @@ const Chat: React.FC<MyProps> = ({ user }) => {
 
 
 	const initStressDetailChart = () => {
+		console.log("stressDetail", stressDetail)
 		if(JSON.stringify(stressDetail) === '{}' || !stressDetail) return
-	
+		const calendarDate = stressDetail.calendarDate;
+		const timeStamp = strToTimestamp(calendarDate + ' 00:00:00');
+
+		console.log(sleepData.startTime, timeStamp, sleepData.startTime - timeStamp)
+		const startIndex = sleepData.startTime < timeStamp ? 0: Math.floor((sleepData.startTime - timeStamp) / 180);
+		const endIndex = Math.floor((sleepData.endTime - timeStamp) / 180); 
 
 		const chartId = "stressDetailChart" + messageNum;
 			// @ts-ignores
@@ -700,27 +219,43 @@ const Chat: React.FC<MyProps> = ({ user }) => {
 					type: 'shadow'
 				},
 				textStyle: {
-					fontSize: 8
+					fontSize: 8,
+					lineHeight: 56,
 				},
 				formatter: (params: any) => {
+					console.log('exerciseIndex', exerciseIndex)
+					console.log('eatIndex', eatIndex)
+					const index = params[0].dataIndex;
 					if (params[0].value === -10) {
 						return params[0].name + '<br/><br/>' 
 						+ params[0].marker + "活动中"
 					} else if (params[0].value === -1) {
 						return params[0].name + '<br/><br/>' 
 							+ "无法测量"
-					} 
-					// else if (params[0].value === 94) {
-					// 	return params[0].name + '<br/><br/>' 
-					// 	+ params[0].marker
-					// 	+ params[0].seriesName + ' : ' + params[0].value+'<br/><br/>'
-					// 	+ "运动后交感神经系统活动增加，导致HRV值降低，压力值升高"
-					// }
-					 else {
+					// @ts-ignore
+					} else if (exerciseIndex?.indexOf(index) >= 0) {
+						return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
+							params[0].name + '<br/><br/>' 
+							+ params[0].marker
+							+ params[0].seriesName + ' : ' + params[0].value+'<br/><br/>' 
+							+ '<p>'+ '压力状态受自主神经系统控制，其中交感神经活跃程度的提高会提高压力水平。' + '<span style="color:red;">运动</span>会提高交感神经系统的活跃程度，导致运动结束后的一段时间内检测到的压力值升高。' + '</p>'
+							// + "压力状态受自主神经系统控制，其中交感神经活跃程度的提高会提高压力水平，副交感神经活动程度的提高会降低压力水平。" + '<br/>' + "而自主神经系统的状态可以通过心率变异性(HRV)反映。运动会提高交感神经系统的活跃程度，导致运动结束后的一段时间内检测到的压力值升高。"
+							+	'</div>' 
+					// @ts-ignore
+					} else if(eatIndex?.indexOf(index) >= 0) {
+						return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
+						params[0].name + '<br/><br/>' 
+						+ params[0].marker
+						+ params[0].seriesName + ' : ' + params[0].value+'<br/><br/>' 
+						+ '<p>'+ '研究表明酒精、咖啡、以及一些不健康的饮食（例如高碳水化合物、高脂或反式脂肪食物，常见于包装零食，烤货，块状人造黄油，膨化食品和快餐等）会降低HRV，导致压力值升高。' + '</p>'
+						// + "压力状态受自主神经系统控制，其中交感神经活跃程度的提高会提高压力水平，副交感神经活动程度的提高会降低压力水平。" + '<br/>' + "而自主神经系统的状态可以通过心率变异性(HRV)反映。运动会提高交感神经系统的活跃程度，导致运动结束后的一段时间内检测到的压力值升高。"
+						+	'</div>' 
+					}
+					else {
 						return params[0].name + '<br/><br/>' 
 							+ params[0].marker
 							+ params[0].seriesName + ' : ' + params[0].value+'<br/>'
-					}
+					} 
 				},
 			},
 			xAxis: {
@@ -734,19 +269,14 @@ const Chat: React.FC<MyProps> = ({ user }) => {
 					// interval: 79,
 					interval: 0,
 					formatter: (value: any, index: number) => {
-						console.log('--->x', value, index)
-						const date = new Date(2021, 0, 5);
-						const timeStamp = Math.floor(date.getTime() / 1000);
-						console.log(sleepData.startTime, timeStamp, sleepData.startTime - timeStamp )
-						const startIndex = sleepData.startTime < timeStamp ? 0: Math.floor((sleepData.startTime - timeStamp) / 180);
-						const endIndex = Math.floor((sleepData.endTime - timeStamp) / 180); 
-						console.log("index", startIndex, endIndex)
+						// console.log('--->x', value, index)
+						// console.log("index", startIndex, endIndex)
 						if (index === startIndex) {
-							// return '{fallASleepValue|}\n'+ value.split('-')[0];
-							return '{fallASleepValue|}';
+							return '{fallASleepValue|} '+ value.split('-')[0];
+							// return '{fallASleepValue|}';
 						} else if(index === endIndex) {
-							// return '{getUpValue|}\n' + value.split('-')[0];
-							return '{getUpValue|}';
+							return '{getUpValue|} ' + value.split('-')[0];
+							// return '{getUpValue|}';
 						} else if(index % 80 === 0) {
 							return '\n\n\n' + value.split('-')[0]
 						}
@@ -757,7 +287,7 @@ const Chat: React.FC<MyProps> = ({ user }) => {
 							height: 15,
 							align: 'center',
 							backgroundColor: {
-									image: '/assets/icon/fallAsleep.png'  	//这个warnImg是上面定义的图片var warnImg = "img/warn.png";
+									image: '/assets/icon/sleep2.png'  	//这个warnImg是上面定义的图片var warnImg = "img/warn.png";
 							}
 						},
 						getUpValue: {
@@ -770,7 +300,14 @@ const Chat: React.FC<MyProps> = ({ user }) => {
 					}
 				},
 				axisTick: {
-					show: false	//x轴刻度线
+					show: true,	//x轴刻度线
+					interval: (index: number, value: string) => {
+						if (index === startIndex || index === endIndex || index % 80 === 0) {
+							return true;
+						} else {
+							return false;
+						}
+					}
 				},
 				// offset: 0,
 				axisLine: {
@@ -855,17 +392,64 @@ const Chat: React.FC<MyProps> = ({ user }) => {
 				barWidth: 0.5,
 			}
 		});
+
+		stressDetailChart.dispatchAction({
+			type: 'showTip',
+			// 屏幕上的 x 坐标
+			x: 10,
+			// 屏幕上的 y 坐标
+			y: 10,
+			// 本次显示 tooltip 的位置。只在本次 action 中生效。
+			// 缺省则使用 option 中定义的 tooltip 位置。
+		})
+
 	}
 
+
+	const isMaybeEat = (index: any) => {
+		// 11:00-1:00, 17:00:19:00
+		// 220-260, 340-380
+		if((index >= 220 && index < 260) || (index >= 340 && index < 380)) {
+			return true;
+		}
+		return false;
+	}
+
+
 	const showStressDetailChart = () => {
-		// initStressDetailChart()		
+		// TODO: userId记得改回来
+		// user.userId = 11
+		// @ts-ignore
+		if (user.userId < 0) {
+			history.push('/login', {direction: 'none'})
+			return;
+		}
+		// let message1 = {
+		// 	id: messageNum + 1,
+		// 	date: formatDate(new Date()),
+		// 	userId: user.userId,
+		// 	username: user.username,
+		// 	avatar: user.avatar,
+		// 	text: "查看我最近的压力详情"
+		// }
+		// setMessages(messages => [...messages, message1])
+		// setMessageNum(messageNum => messageNum + 1)
+		// scrollToBottom()
 		const asyncFetchData = async () => {
 			// TODO: userId记得改回来
-			const fetchStressData: any = await getLatestDataService(11, DOMAIN.STRESS);
+			// @ts-ignore
+			const fetchStressData: any = await getLatestDataService(user.userId, DOMAIN.STRESS);
 			const stressData = fetchStressData.data?.latestData || null;
 			setStressDetail(stressData)
+		
+			const date = stressData.calendarDate;
+			// @ts-ignore		
+			const fetchSleepData: any = await getSleepDataByDate(user.userId, date);
+			const sleepData = fetchSleepData.sleepData || {};
+			setSleepData(sleepData)
+			console.log('=====>sleppData', sleepData)
 		}
-		console.log('=====>stressDetail')
+
 		let responseMessage = {
 			id: messageNum + 1,
 			date: formatDate(new Date()),
@@ -874,17 +458,63 @@ const Chat: React.FC<MyProps> = ({ user }) => {
 			avatar: chatbot.avatar,
 			text: "stressDetailChart"
 		}
-		asyncFetchData();
 		setMessages(messages => [...messages, responseMessage])
 		setMessageNum(messageNum => messageNum + 1)
 		scrollToBottom()
+		asyncFetchData();
 	}
 
+
 	useEffect(() => {
-		if(!stressDetail) return
+
+		if(!stressDetail || !sleepData) return;
+		
+		const stressArr: Array<number> = Object.values(stressDetail.timeOffsetStressLevelValues);
+
+		const afterActivityUnable = [];
+		// 标记-2与>=0的元素之间的所有元素
+		for(let i = 0; i < stressArr.length; i++) {
+			if(i > 0 && (stressArr[i-1] === -2 || afterActivityUnable.indexOf(i-1) >= 0) && stressArr[i] === -1) {
+				afterActivityUnable.push(i);
+			}
+		}
+
+		const exercise = [];
+		let continuousNum = 0;
+		for(let i = 0; i < stressArr.length; i++) {
+			// @ts-ignore
+			//可能是运动导致压力升高的规则：一个元素值为-2,其后连续1,2,3,4,5个元素的值大于25，则后面这5个元素都标记为受运动影响的压力升高
+			console.log('continuousNum: ', continuousNum)
+			if(continuousNum <= 4 && (i > 0 && ((afterActivityUnable.indexOf(i-1) >= 0 || stressArr[i-1] === -2 ) && stressArr[i] > 25) || (i > 1 && exercise.indexOf(i-1) >= 0 && stressArr[i] > 25))) {
+				continuousNum++;
+				exercise.push(i);
+			} else {
+				continuousNum = 0;
+			}
+		}
+		console.log('exercise', exercise)
+		setExerciseIndex(exercise)
+
+		const eat = []; 
+		for(let i = 0; i < stressArr.length; i++) {
+			// @ts-ignore
+			//可能是饮食导致压力升高的规则：不属于运动升高，时间范围在11:00-13:00,17：00-19:00，前一个元素的值为0-25，其后连续1,2,3个元素的值大于25，则后面这1或2或3个元素都标记为受饮食影响的值
+			if(stressArr.indexOf(i) >= 0 || stressArr[i] <= 25 || !isMaybeEat(i)) {
+				continue;
+			} else if((i > 0 && stressArr[i-1] > 0 && stressArr[i-1] < 25) || (i > 1 && eat.indexOf(i-1) >= 0) || (i > 2 && eat.indexOf(i-2) >= 0)) {
+				eat.push(i)	
+			}
+		}
+		console.log('eat', eat)
+		setEatIndex(eat);
 		setStressChartLoading(false);	
+	}, [stressDetail, sleepData])
+
+
+	useEffect(()=> {
 		initStressDetailChart()
-	}, [stressDetail])
+	}, [exerciseIndex, eatIndex])
+	
 
 	return (
 		<IonPage>
@@ -922,17 +552,15 @@ const Chat: React.FC<MyProps> = ({ user }) => {
 									</div>
 								}
 								{ message.text === "stressDetailChart" && 
-								
 									<div className="chat-bubble left slide-left">
 										<Spin spinning={stressChartLoading}>
-											<div id={"stressDetailChart" + message.id} style={{width: "800px", height: "300px"}}></div>	
+											<div id={"stressDetailChart" + message.id} style={{width: "700px", height: "300px"}}></div>	
 											<div className="message"> </div>
 												<div className="message-detail left">
 													<span>{message.date}</span>
 											</div>	
 										</Spin>
-								</div>
-									
+								  </div>
 								}
 							</div>
 						}
@@ -959,7 +587,7 @@ const Chat: React.FC<MyProps> = ({ user }) => {
 							<IonList>
 								<IonItem>
 									<IonLabel position="stacked" color="primary">活动</IonLabel>
-									<IonInput name="username" type="text" onClick={() => setShowActivitiesModal(true)}>
+									<IonInput name="username" type="text">
 									</IonInput>
             		</IonItem>
 								<IonItem>
