@@ -248,7 +248,7 @@ const MyHealthData: React.FC<MyHealthDataProps> = ({ userId, history }) => {
 
 	useEffect(() => {
 		// TODO: userId记得改回来
-		userId = 11;
+		// userId = 11;
 		if(userId < 0 || !userId) {
 			history.push('/login', {direction: 'none'})
 		}
@@ -262,7 +262,7 @@ const MyHealthData: React.FC<MyHealthDataProps> = ({ userId, history }) => {
 			const dailyData = fetchDailyData.data?.latestData || null;
 			setDailyData(dailyData);
 			const date = dateToString(new Date(), "yyyy-MM-dd") 
-			const fetchSleepData: any = await getHealthDataByDate(11, DOMAIN.SLEEP, date);
+			const fetchSleepData: any = await getHealthDataByDate(userId, DOMAIN.SLEEP, date);
 			// const fetchSleepData: any = await getLatestDataService(11, DOMAIN.SLEEP);
 			// const sleepData = fetchSleepData.data?.latestData || null;
 			const sleepData = fetchSleepData.data?.data || null;

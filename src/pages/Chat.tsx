@@ -28,6 +28,7 @@ import { connect } from '../data/connect';
 import { DOMAIN } from '../utils/constants'
 import { getLatestDataService } from '../service/deviceService'
 import { Spin } from 'antd';
+import { secondToHourMinute, dateToString } from '../utils/handleDate'
 
 import 'antd/dist/antd.css';
 
@@ -93,7 +94,9 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 	const [sleepData, setSleepData] = useState<any>();
 	const [exerciseIndex, setExerciseIndex] = useState<Array<any>>();
 	const [eatIndex, setEatIndex] = useState<Array<any>>();
-
+	const [dailyData, setDailyData] = useState<any>({}); 
+	const [sleepChartData,  setSleepChartData] = useState<any>();
+	const [sleepChartLoading, setSleepChartLoading] = useState(true);
 
 	const sendMessage  = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -181,17 +184,89 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		}
 	},[])
 
-	// useEffect(() => {
-	// 	const asyncFetchData = async () => {
-	// 		// TODO: userId记得改回来
-	// 		const fetchStressData: any = await getLatestDataService(11, DOMAIN.STRESS);
-	// 		const stressData = fetchStressData.data?.latestData || null;
-	// 		setStressDetail(stressData)
-	// 	}
-	
-	// 	asyncFetchData();
-	// 	console.log('---->stressDetail', stressDetail)
-	// }, [])
+
+	const initStressPieChart = () => {
+		if(JSON.stringify(dailyData) === '{}' || !dailyData) return
+		console.log('---->dailyData', dailyData)
+		const stressData = [];
+		// @ts-ignore
+		stressData.push({'value': dailyData.restStressDurationInSeconds,  name: '放松'});
+		// @ts-ignore
+		stressData.push({'value': dailyData.lowStressDurationInSeconds,  name: '低'});
+		// @ts-ignore
+		stressData.push({'value': dailyData.mediumStressDurationInSeconds,  name: '中'});
+		// @ts-ignore
+		stressData.push({'value': dailyData.highStressDurationInSeconds,  name: '高'});
+		// @ts-ignore
+		const avgStress = dailyData.averageStressLevel;
+		
+		const target = new Map();
+		stressData.forEach((item=>{
+			target.set(item.name, item.value)
+		}))
+
+		const stressPieId = "stressPie" + messageNum;
+		
+		// @ts-ignore
+		const stressPie = echarts.init(document.getElementById(stressPieId))
+
+		stressPie.setOption({
+			title: {
+				// @ts-ignore
+				text: dailyData?.calendarDate || '',
+				left: 'center',
+				textStyle: {
+					fontSize: 14,
+					fontWeight: 'bolder',
+					color: '#333'          // 主标题文字颜色
+				},
+			},
+
+      // title: {
+      //   text: '压力比例',
+      //   left: '75',
+      //   top: 'bottom',
+      //   textStyle: {
+      //     fontSize: 12
+      //   }
+      // },
+			tooltip: {
+        trigger: 'item',
+        formatter: '{b}: {d}%'
+			},
+			color:["#42c5f5", "#f0c060", "#f59e42", "#f56642"],
+			// @ts-ignore
+			legend: {
+				orient: 'vertical',
+				right: 0,
+				bottom: 0,
+				data: ['放松', '低', '中', '高'],
+				formatter: (name) => {
+					let lists = [];
+					lists.push(name + ': ' + secondToHourMinute(target.get(name)))
+					return lists
+				},
+				textStyle: {
+					fontSize: 12,
+				}
+			},
+			series: [
+				{
+					name: '压力',
+					type: 'pie',
+					radius: ['60%', '75%'],	 // 设置环形饼状图， 第一个百分数设置内圈大小，第二个百分数设置外圈大小
+					center: ['50%', '60%'],	 // 设置饼状图位置，第一个百分数调水平位置，第二个百分数调垂直位置
+					label: {
+						show: true,
+						position: 'center',
+						formatter: '均值'+ avgStress,
+						fontSize: 13
+					},
+					data: stressData
+				}
+			]
+		})
+	} 
 
 
 	const initStressDetailChart = () => {
@@ -208,11 +283,11 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 			// @ts-ignores
 		const stressDetailChart = echarts.init(document.getElementById(chartId))
 		stressDetailChart.setOption({
-			title: {
-				// @ts-ignore
-				text: stressDetail?.calendarDate || '',
-				left: 'center'
-			},
+			// title: {
+			// 	// @ts-ignore
+			// 	text: stressDetail?.calendarDate || '',
+			// 	left: 'center'
+			// },
 			tooltip: {
 				trigger: 'axis',
 				axisPointer: {
@@ -223,21 +298,38 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 					lineHeight: 56,
 				},
 				formatter: (params: any) => {
+					const value = params[0].value;
 					console.log('exerciseIndex', exerciseIndex)
 					console.log('eatIndex', eatIndex)
 					const index = params[0].dataIndex;
-					if (params[0].value === -10) {
+					if (value === -10) {
 						return params[0].name + '<br/><br/>' 
 						+ params[0].marker + "活动中"
-					} else if (params[0].value === -1) {
+					} else if (value === -1) {
 						return params[0].name + '<br/><br/>' 
 							+ "无法测量"
+					} else if (index >= startIndex && index <= endIndex) {
+						if (value > 25) {
+							return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
+							params[0].name + '<br/><br/>' 
+							+ params[0].marker
+							+ params[0].seriesName + ' : ' + value + '<br/><br/>' +
+							'睡眠期间的压力值高，可能是因为白天运动过度、睡前饮酒过多、睡眠障碍等多方面原因造成的。请您关注自己的健康状况，放松身心，合理安排工作和休息时间。'
+							+	'</div>'
+						} else {
+							return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
+							params[0].name + '<br/><br/>' 
+							+ params[0].marker
+							+ params[0].seriesName + ' : ' + value+'<br/><br/>' +
+							'优质的睡眠能帮助您从白天的压力中恢复过来'
+							+	'</div>' 
+						}
 					// @ts-ignore
 					} else if (exerciseIndex?.indexOf(index) >= 0) {
 						return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
 							params[0].name + '<br/><br/>' 
 							+ params[0].marker
-							+ params[0].seriesName + ' : ' + params[0].value+'<br/><br/>' 
+							+ params[0].seriesName + ' : ' + value + '<br/><br/>' 
 							+ '<p>'+ '压力状态受自主神经系统控制，其中交感神经活跃程度的提高会提高压力水平。' + '<span style="color:red;">运动</span>会提高交感神经系统的活跃程度，导致运动结束后的一段时间内检测到的压力值升高。' + '</p>'
 							// + "压力状态受自主神经系统控制，其中交感神经活跃程度的提高会提高压力水平，副交感神经活动程度的提高会降低压力水平。" + '<br/>' + "而自主神经系统的状态可以通过心率变异性(HRV)反映。运动会提高交感神经系统的活跃程度，导致运动结束后的一段时间内检测到的压力值升高。"
 							+	'</div>' 
@@ -246,7 +338,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 						return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
 						params[0].name + '<br/><br/>' 
 						+ params[0].marker
-						+ params[0].seriesName + ' : ' + params[0].value+'<br/><br/>' 
+						+ params[0].seriesName + ' : ' + value + '<br/><br/>' 
 						+ '<p>'+ '研究表明酒精、咖啡、以及一些不健康的饮食（例如高碳水化合物、高脂或反式脂肪食物，常见于包装零食，烤货，块状人造黄油，膨化食品和快餐等）会降低HRV，导致压力值升高。' + '</p>'
 						// + "压力状态受自主神经系统控制，其中交感神经活跃程度的提高会提高压力水平，副交感神经活动程度的提高会降低压力水平。" + '<br/>' + "而自主神经系统的状态可以通过心率变异性(HRV)反映。运动会提高交感神经系统的活跃程度，导致运动结束后的一段时间内检测到的压力值升高。"
 						+	'</div>' 
@@ -254,7 +346,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 					else {
 						return params[0].name + '<br/><br/>' 
 							+ params[0].marker
-							+ params[0].seriesName + ' : ' + params[0].value+'<br/>'
+							+ params[0].seriesName + ' : ' + value + '<br/>'
 					} 
 				},
 			},
@@ -405,6 +497,86 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 
 	}
 
+	const initSleepChart = () => {
+		console.log('---->initSleepChart', sleepChartData)
+		if(JSON.stringify(sleepChartData) === '{}' || !sleepChartData) {
+			return;
+		}
+		console.log('---->sleepChartData', sleepChartData)
+		const chartData = [
+			{value: sleepChartData.deepSleepDurationInSeconds, name: '深睡期'},
+			{value: sleepChartData.lightSleepDurationInSeconds, name: '浅睡期'},
+			{value: sleepChartData.remSleepInSeconds, name: '快速眼动睡眠'},
+			{value: sleepChartData.awakeDurationInSeconds, name: '清醒'}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+		]
+	
+		const target = new Map();
+		chartData.forEach(((item: any) =>{
+			target.set(item.name, item.value)
+		}))
+
+		const chartId = "sleepPie" + messageNum;
+		// @ts-ignores
+		const sleepPie = echarts.init(document.getElementById(chartId))
+
+		sleepPie.setOption({
+			animation: false, // 取消动画
+			title: {
+				// @ts-ignore
+				text: sleepChartData?.calendarDate || '',
+				left: 'center',
+				textStyle: {
+					fontSize: 14,
+					fontWeight: 'bolder',
+					color: '#333'          // 主标题文字颜色
+				},
+			},
+			tooltip: {
+				trigger: 'item',
+				formatter: '{b}: {d}%'
+			},
+			color:["#3366ff", "#66a3ff", "#ff9966", "#ffcc00"],
+			// @ts-ignore
+			legend: {
+				orient: 'vertical',
+				right: 0,
+				bottom: 0,
+				data: ['深睡期', '浅睡期', '快速眼动睡眠', '清醒'],
+				formatter: (name) => {
+					let lists = [];
+					console.log(target.get(name))
+					lists.push(name + ': ' + secondToHourMinute(target.get(name)))
+					return lists
+				},
+				textStyle: {
+					fontSize: 12,
+				}
+			},
+			series: [
+				{
+					name: '睡眠',
+					type: 'pie',
+					radius: ['60%', '75%'],	 // 设置环形饼状图， 第一个百分数设置内圈大小，第二个百分数设置外圈大小
+					center: ['50%', '60%'],	 // 设置饼状图位置，第一个百分数调水平位置，第二个百分数调垂直位置
+					// avoidLabelOverlap: false,
+					label: {
+						show: true,
+						position: 'center',
+						formatter: secondToHourMinute(sleepChartData.durationInSeconds),
+						fontSize: 13
+					},
+					data: chartData
+				}
+			]
+		})
+		sleepPie.on('legendselectchanged',params => {
+			sleepPie.setOption({
+				// @ts-ignore
+				legend:{selected:{[params.name]: true}}
+			})
+		})
+		setSleepChartLoading(false);
+	}
 
 	const isMaybeEat = (index: any) => {
 		// 11:00-1:00, 17:00:19:00
@@ -418,7 +590,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 
 	const showStressDetailChart = () => {
 		// TODO: userId记得改回来
-		// user.userId = 11
+		user.userId = 11
 		// @ts-ignore
 		if (user.userId < 0) {
 			history.push('/login', {direction: 'none'})
@@ -435,19 +607,25 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		// setMessages(messages => [...messages, message1])
 		// setMessageNum(messageNum => messageNum + 1)
 		// scrollToBottom()
+		setStressChartLoading(true)
 		const asyncFetchData = async () => {
-			// TODO: userId记得改回来
+
+			// @ts-ignore
+			const fetchDailyData: any = await getLatestDataService(user.userId, DOMAIN.DAILY);
+			const dailyData = fetchDailyData.data?.latestData || null;
+			setDailyData(dailyData);
+			
 			// @ts-ignore
 			const fetchStressData: any = await getLatestDataService(user.userId, DOMAIN.STRESS);
 			const stressData = fetchStressData.data?.latestData || null;
-			setStressDetail(stressData)
+			setStressDetail(stressData);
 		
 			const date = stressData.calendarDate;
 			// @ts-ignore		
 			const fetchSleepData: any = await getSleepDataByDate(user.userId, date);
 			const sleepData = fetchSleepData.sleepData || {};
 			setSleepData(sleepData)
-			console.log('=====>sleppData', sleepData)
+			console.log('=====>sleppData', sleepData);
 		}
 
 		let responseMessage = {
@@ -465,9 +643,44 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 	}
 
 
+	const showSleepPie = () => {
+		setSleepChartLoading(true);
+		user.userId = 11
+		// @ts-ignore
+		if (user.userId < 0) {
+			history.push('/login', {direction: 'none'})
+			return;
+		}
+		const asyncFetchData = async () => {
+			// @ts-ignore		
+			const fetchSleepData: any = await getLatestDataService(user.userId, DOMAIN.SLEEP);
+			const sleepData = fetchSleepData.data?.latestData || null;
+			setSleepChartData(sleepData)
+		}
+		let responseMessage = {
+			id: messageNum + 1,
+			date: formatDate(new Date()),
+			userId: chatbot.id,
+			username: chatbot.username,
+			avatar: chatbot.avatar,
+			text: "sleepChart"
+		}
+		setMessages(messages => [...messages, responseMessage])
+		setMessageNum(messageNum => messageNum + 1)
+		scrollToBottom()
+		asyncFetchData();
+	}
+
+
+	useEffect(() => {
+		console.log('---->111 sleepChartData', sleepChartData)
+		initSleepChart();
+	}, [sleepChartData])
+
+
 	useEffect(() => {
 
-		if(!stressDetail || !sleepData) return;
+		if(!stressDetail || !sleepData || !dailyData) return;
 		
 		const stressArr: Array<number> = Object.values(stressDetail.timeOffsetStressLevelValues);
 
@@ -499,19 +712,23 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		for(let i = 0; i < stressArr.length; i++) {
 			// @ts-ignore
 			//可能是饮食导致压力升高的规则：不属于运动升高，时间范围在11:00-13:00,17：00-19:00，前一个元素的值为0-25，其后连续1,2,3个元素的值大于25，则后面这1或2或3个元素都标记为受饮食影响的值
-			if(stressArr.indexOf(i) >= 0 || stressArr[i] <= 25 || !isMaybeEat(i)) {
+			if(exercise.indexOf(i) >= 0 || stressArr[i] <= 25 || !isMaybeEat(i)) {
 				continue;
-			} else if((i > 0 && stressArr[i-1] > 0 && stressArr[i-1] < 25) || (i > 1 && eat.indexOf(i-1) >= 0) || (i > 2 && eat.indexOf(i-2) >= 0)) {
-				eat.push(i)	
-			}
+			// 从放松->有压力
+			// } else if((i > 0 && stressArr[i-1] >= 0 && stressArr[i-1] <= 25) || (i > 1 && eat.indexOf(i-1) >= 0) || (i > 2 && eat.indexOf(i-2) >= 0)) {
+			// 有压力
+		} else {
+				eat.push(i);
+			}                     
 		}
 		console.log('eat', eat)
 		setEatIndex(eat);
 		setStressChartLoading(false);	
-	}, [stressDetail, sleepData])
+	}, [stressDetail, sleepData, dailyData])
 
 
 	useEffect(()=> {
+		initStressPieChart()
 		initStressDetailChart()
 	}, [exerciseIndex, eatIndex])
 	
@@ -533,17 +750,19 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 						{ user.userId !== message.userId && 
 							<div>
 								<img className="profile-pic left" src={chatbot.avatar} />
-								{ message.text !== "stressDetailChart" && 
+								{ message.text !== "stressDetailChart" && message.text !== "sleepChart" && 
 									<div className="chat-bubble left slide-left">
 										<div className="message" style={{whiteSpace: "pre-line"}}>{message.text}
 										{/* {message.text instanceof Array === true && message.text.map((text: string, index: number) => (
 											<div>{text}</div>
 										))} */}
 										<br />
-										<a href="/recordActivity">记录日常活动</a>
-										<br />
+										{/* <a href="/recordActivity">记录日常活动</a> */}
+										{/* <br /> */}
 										{/* <a href="/stressDetail">查看我最近的压力详情</a> */}
-										<a href="javascript:;" onClick={() => showStressDetailChart()}>查看我最近的压力详情</a>
+										<a href="javascript:;" onClick={() => showStressDetailChart()}>查看最近的压力数据</a>
+										<br/>
+										<a href="javascript:;" onClick={() => showSleepPie()}>查看最近的睡眠数据</a>
 										</div>
 										<div className="message"> </div>
 										<div className="message-detail left">
@@ -554,7 +773,19 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 								{ message.text === "stressDetailChart" && 
 									<div className="chat-bubble left slide-left">
 										<Spin spinning={stressChartLoading}>
-											<div id={"stressDetailChart" + message.id} style={{width: "700px", height: "300px"}}></div>	
+										  <div id={"stressPie" + message.id} style={{ width: "650px", height: "150px" }}></div>
+											<div id={"stressDetailChart" + message.id} style={{width: "650px", height: "300px"}}></div>	
+											<div className="message"> </div>
+												<div className="message-detail left">
+													<span>{message.date}</span>
+											</div>	
+										</Spin>
+								  </div>
+								}
+								{ message.text === "sleepChart" && 
+									<div className="chat-bubble left slide-left">
+										<Spin spinning={sleepChartLoading}>
+										  <div id={"sleepPie" + message.id} style={{ width: "650px", height: "150px" }}></div>
 											<div className="message"> </div>
 												<div className="message-detail left">
 													<span>{message.date}</span>
