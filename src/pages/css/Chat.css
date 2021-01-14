@@ -206,3 +206,33 @@ ion-footer {
 	border-top: solid 1px #3880ff
 }
 
+.contentStyle {
+	height: 160px;
+	color: #fff;
+	line-height: 160px;
+	text-align: center;
+	background-color: #364d79;
+}
+
+.slick-prev:before, .slick-next:before {
+	color: #000 !important;
+}
+/* 
+.carouselDiv {
+	width: 500px !important;
+} */
+
+.stressDetailContent {
+	display: flex;
+	flex-direction: column;
+} 
+
+.preNext {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
+}
+
+.nav {
+	padding-right: 10px;
+}

@@ -64,6 +64,11 @@ interface StressDetail {
 	"timeOffsetStressLevelValues": object
 }
 
+// const sleepData = {
+// 	calendarDate: "2021-01-05",
+// 	startTime: 1609777980,
+// 	endTime: 1609804200
+// }
 
 interface ChatProps extends MyProps, RouteComponentProps { }
 
@@ -94,10 +99,9 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 	const [sleepChartData,  setSleepChartData] = useState<any>();
 	const [sleepChartLoading, setSleepChartLoading] = useState(true);
 	const [isHasStressData, setIsHasStressData] = useState(true);
-	const [isHasStressDataMap, setIsHasStressDataMap] = useState(new Map());
 	const [stressDate, setStressDate] = useState(dateToString(new Date(), "yyyy-MM-dd"));
 
-	// const [stressDataArray, setStressDateArray] = useState<Array<any>>();
+	const [stressDataArray, setStressDateArray] = useState<Array<any>>();
 
 	const sendMessage  = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -300,8 +304,8 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 				},
 				formatter: (params: any) => {
 					const value = params[0].value;
-					// console.log('exerciseIndex', exerciseIndex)
-					// console.log('eatIndex', eatIndex)
+					console.log('exerciseIndex', exerciseIndex)
+					console.log('eatIndex', eatIndex)
 					const index = params[0].dataIndex;
 					if (value === -10) {
 						return params[0].name + '<br/><br/>' 
@@ -362,6 +366,8 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 					// interval: 79,
 					interval: 0,
 					formatter: (value: any, index: number) => {
+						// console.log('--->x', value, index)
+						// console.log("index", startIndex, endIndex)
 						if (index === startIndex) {
 							return '{fallASleepValue|} '+ value.split('-')[0];
 							// return '{fallASleepValue|}';
@@ -490,6 +496,8 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 			x: 10,
 			// 屏幕上的 y 坐标
 			y: 10,
+			// 本次显示 tooltip 的位置。只在本次 action 中生效。
+			// 缺省则使用 option 中定义的 tooltip 位置。
 		})
 
 	}
@@ -585,8 +593,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 	}
 
 
-	const showStressChartByDate = async (date: String, isPreNext: boolean) => {
-		console.log('--->date', date)
+	const showStressChartByDate = async (date: String) => {
 		// TODO: userId记得改回来
 		user.userId = 11
 		// @ts-ignore
@@ -620,36 +627,82 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 			setSleepData(sleepData)
 			return true;
 		}
-		const id = messageNum + 1;
-		if (!isPreNext) {
-			let responseMessage = {
-				id,
-				date: formatDate(new Date()),
-				userId: chatbot.id,
-				username: chatbot.username,
-				avatar: chatbot.avatar,
-				text: "stressDetailChart",
-			}
-			setMessageNum(messageNum => id)
-			setMessages(messages => [...messages, responseMessage])	
-			scrollToBottom()
+
+		let responseMessage = {
+			id: messageNum + 1,
+			date: formatDate(new Date()),
+			userId: chatbot.id,
+			username: chatbot.username,
+			avatar: chatbot.avatar,
+			text: "stressDetailChart"
 		}
-		
+	
+		setMessages(messages => [...messages, responseMessage])
+		setMessageNum(messageNum => messageNum + 1)
+		scrollToBottom()
+	
 		const hasData = await asyncFetchData(date);
-		setStressChartLoading(false);	
+		
 		console.log('--->hasdata', hasData)
 		setIsHasStressData(hasData);
-		// @ts-ignore
-		// setIsHasStressDataMap(isHasStressDataMap.set(id + '', hasData))
-		console.log('isHasStressDataMap', isHasStressDataMap)
-	}
 
+		setStressChartLoading(false);	
+	}
 
 	const showStressDetailChart = () => {
 		console.log('---->showStressDetailChart')
 		const date = 	dateToString(new Date(), "yyyy-MM-dd");
-		// const date = "2021-01-05";
-		showStressChartByDate(date, false);
+		showStressChartByDate(date);
+		// showStressChartByDate("2021-01-12");
+		// // @ts-ignore
+		// if (user.userId < 0) {
+		// 	history.push('/login', {direction: 'none'})
+		// 	return;
+		// }
+		// // let message1 = {
+		// // 	id: messageNum + 1,
+		// // 	date: formatDate(new Date()),
+		// // 	userId: user.userId,
+		// // 	username: user.username,
+		// // 	avatar: user.avatar,
+		// // 	text: "查看我最近的压力详情"
+		// // }
+		// // setMessages(messages => [...messages, message1])
+		// // setMessageNum(messageNum => messageNum + 1)
+		// // scrollToBottom()
+		// setStressChartLoading(true)
+		// const asyncFetchData = async () => {
+
+		// 	// @ts-ignore
+		// 	const fetchDailyData: any = await getLatestDataService(user.userId, DOMAIN.DAILY);
+		// 	const dailyData = fetchDailyData.data?.latestData || null;
+		// 	setDailyData(dailyData);
+			
+		// 	// @ts-ignore
+		// 	const fetchStressData: any = await getLatestDataService(user.userId, DOMAIN.STRESS);
+		// 	const stressData = fetchStressData.data?.latestData || null;
+		// 	setStressDetail(stressData);
+		
+		// 	const date = stressData.calendarDate;
+		// 	// @ts-ignore		
+		// 	const fetchSleepData: any = await getSleepDataByDate(user.userId, date);
+		// 	const sleepData = fetchSleepData.sleepData || {};
+		// 	setSleepData(sleepData)
+		// 	console.log('=====>sleppData', sleepData);
+		// }
+
+		// let responseMessage = {
+		// 	id: messageNum + 1,
+		// 	date: formatDate(new Date()),
+		// 	userId: chatbot.id,
+		// 	username: chatbot.username,
+		// 	avatar: chatbot.avatar,
+		// 	text: "stressDetailChart"
+		// }
+		// setMessages(messages => [...messages, responseMessage])
+		// setMessageNum(messageNum => messageNum + 1)
+		// scrollToBottom()
+		// asyncFetchData();
 	}
 
 
@@ -685,14 +738,14 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		// const date = 	dateToString(new Date(), "yyyy-MM-dd");
 		const prevDate = getPrevDate(stressDate);
 		setStressDate(prevDate)
-		showStressChartByDate(prevDate, true);
+		showStressChartByDate(prevDate);
 	}
 
 	const showStressNext = () => {
 		// const date = 	dateToString(new Date(), "yyyy-MM-dd");
 		const nextDate = getNextDate(stressDate);
 		setStressDate(nextDate)
-		showStressChartByDate(nextDate, true);
+		showStressChartByDate(nextDate);
 	}
 
 
@@ -723,7 +776,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		for(let i = 0; i < stressArr.length; i++) {
 			// @ts-ignore
 			//可能是运动导致压力升高的规则：一个元素值为-2,其后连续1,2,3,4,5个元素的值大于25，则后面这5个元素都标记为受运动影响的压力升高
-			// console.log('continuousNum: ', continuousNum)
+			console.log('continuousNum: ', continuousNum)
 			if(continuousNum <= 4 && (i > 0 && ((afterActivityUnable.indexOf(i-1) >= 0 || stressArr[i-1] === -2 ) && stressArr[i] > 25) || (i > 1 && exercise.indexOf(i-1) >= 0 && stressArr[i] > 25))) {
 				continuousNum++;
 				exercise.push(i);
@@ -755,12 +808,38 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 
 	useEffect(()=> {
 		console.log("----->test test")
-		if (isHasStressData) {
-			initStressPieChart()
-			initStressDetailChart()
-		}
-	}, [exerciseIndex, eatIndex, isHasStressData])
+		initStressPieChart()
+		initStressDetailChart()
+	}, [exerciseIndex, eatIndex])
 	
+
+	// useEffect(()=>{
+
+	// },)
+
+	var settings = {
+		dots: true,
+		arrows: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1
+	};
+	
+// 	<Slider {...settings}>
+// 	<div className="carouselDiv">
+// 		<h3 className="contentStyle">1</h3>
+// 	</div>
+// 	<div className="carouselDiv">
+// 		<h3 className="contentStyle">2</h3>
+// 	</div>
+// 	<div className="carouselDiv">
+// 		<h3 className="contentStyle">3</h3>
+// 	</div>
+// 	<div className="carouselDiv">
+// 		<h3 className="contentStyle">4</h3>
+// 	</div>
+// </Slider>
 
 	return (
 		<IonPage>
@@ -797,33 +876,18 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 								{ message.text === "stressDetailChart" && 
 									<div className="chat-bubble left slide-left">
 										<Spin spinning={stressChartLoading}>
-											<div className="stressDetailContent">
-												<div>
-													{/* {isHasStressDataMap.get(message.id) && <> */}
-													{isHasStressData && <>
-														<div id={"stressPie" + message.id} style={{ width: "650px", height: "150px" }}></div>
-														<div id={"stressDetailChart" + message.id} style={{width: "650px", height: "300px"}}></div>	
-													</>}
-													{/* {!isHasStressDataMap.get(message.id) && */}
-													{!isHasStressData &&
-														<div>
-															<div style={{textAlign: "center", fontWeight: "bold"}}>{stressDate}</div>
-															<div>暂无数据，请到Garmin connect App中同步</div>
-														</div>
-													}
-													{/* <NavLink to="#" onClick={() => showStressPre()}>查看前一天压力数据</NavLink><br />
-													<NavLink to="#" onClick={() => showStressNext()}>查看后一天压力数据</NavLink> */}
-												</div>
-												<div className="preNext">
-													<NavLink className="nav" to="#" onClick={() => showStressPre()}>前一天 </NavLink><br />
-													<NavLink className="nav"  to="#" onClick={() => showStressNext()}>后一天</NavLink><br />
-													{/* <button onClick={() => showStressPre()}>前一天</button> */}
-													{/* <button onClick={showStressNext}>后一天</button> */}
-												</div>
-												<div className="message"> </div>
-													<div className="message-detail left">
+											{isHasStressData && <>
+												<div id={"stressPie" + message.id} style={{ width: "650px", height: "150px" }}></div>
+												<div id={"stressDetailChart" + message.id} style={{width: "650px", height: "300px"}}></div>	
+											</>}
+											{!isHasStressData && 
+												<div>暂时没有数据，请到Garmin connect App中同步数据</div>
+											}
+											<NavLink to="#" onClick={() => showStressPre()}>查看前一天压力数据</NavLink><br />
+											<NavLink to="#" onClick={() => showStressNext()}>查看后一天压力数据</NavLink>
+											<div className="message"> </div>
+												<div className="message-detail left">
 													<span>{message.date}</span>
-												</div>
 											</div>
 										</Spin>
 									</div>
@@ -903,9 +967,76 @@ export default connect<{}, MyProps, {}>({
 })
 
 
+// export default Chat;
+
 const chatbot = {
 	id: -2,
 	avatar: '/assets/icon/Chatbot-evolution-1 (3).png',
 	username: 'Chatbot',
 };
+
+// const user = {
+// 	id: 2,
+// 	avatar: '/assets/icon/default.png',
+// 	username: 'Mary',
+// 	gender: 'secret',
+// 	birthday: '',
+// 	createTime: null,
+// 	updateTime: null
+// };
+
+
+// Chat.defaultProps = {
+// 	messages: [
+// 	{
+//       id: 2,
+//       date: formatDate(new Date()),
+//       userId: chatbot.id,
+//       username: chatbot.username,
+//       avatar: chatbot.avatar,
+//       text: '你好，关于睡眠和压力的问题都可以问我哦'
+//     },
+//     {
+//       id: 2,
+//       date: formatDate(new Date()),
+//       userId: user.id,
+//       username: user.username,
+//       avatar: user.avatar,
+//       text: '我最近经常失眠，该怎么办呢'
+//     },
+//     {
+//       id: 3,
+//       date: formatDate(new Date()),
+//       userId: chatbot.id,
+//       username: chatbot.username,
+//       avatar: chatbot.avatar,
+//       text: '失眠可能是很多原因引起的，你最近心情怎么样呢，饮食怎么样呢，运动怎么样呢，压力大吗？学习或者工作上有什么烦恼吗？'
+//     },
+//     {
+//       id: 4,
+//       date: formatDate(new Date()),
+//       userId: user.id,
+//       username: user.username,
+//       avatar: user.avatar,
+//       text: '最近心情不太好，马上要考试了，压力比较大'
+//     },
+//     {
+//       id: 5,
+//       date: formatDate(new Date()),
+//       userId: user.id,
+//       username: user.username,
+//       avatar: user.avatar,
+//       text: 'what??'
+//     },
+//     {
+//       id: 6,
+//       date: formatDate(new Date()),
+//       userId: chatbot.id,
+//       username: chatbot.username,
+//       avatar: chatbot.avatar,
+//       text: 'yes!'
+//     }],
+// 	user: user,
+// 	messgeNum: 1,
+// }
 

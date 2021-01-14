@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-26 01:25:00
- * @LastEditTime: 2021-01-08 01:41:15
+ * @LastEditTime: 2021-01-14 00:16:56
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \my-chatbot-app\src\utils\handleDate.ts
@@ -70,4 +70,23 @@ const strToTimestamp = (dateStr: string) => {
 	return timestamp;
 }
 
-export { formatDate, secondToHourMinute, secondToTime, dateToString, strToTimestamp }
+const getPrevDate = (dateStr: string) => {
+	const timestamp = strToTimestamp(dateStr); //获取当前日期时间戳
+	console.log("timestamp", timestamp)
+  const before = timestamp - 60*60*24;//当前日期时间戳减去一天时间戳
+	const beforeDate = new Date(before*1000);//将时间戳转化为Date对象
+	console.log("timestamp", timestamp, before, beforeDate)
+	
+	return dateToString(beforeDate, "yyyy-MM-dd");
+}
+
+
+const getNextDate = (dateStr: string) => {
+	const timestamp = strToTimestamp(dateStr); //获取当前日期时间戳
+  const before = timestamp + 60*60*24;//当前日期时间戳减去一天时间戳
+  const beforeDate = new Date(before*1000);//将时间戳转化为Date对象
+	return dateToString(beforeDate, "yyyy-MM-dd");
+}
+
+
+export { formatDate, secondToHourMinute, secondToTime, dateToString, strToTimestamp, getPrevDate, getNextDate}
