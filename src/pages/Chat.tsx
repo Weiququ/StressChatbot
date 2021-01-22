@@ -159,7 +159,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 	
 	useEffect(() => {
 		// @ts-ignore
-		// user.userId = 11
+		user.userId = 11
 		if(user && user.userId >= 0) {
 			// @ts-ignore
 			getStressKnowledgeAboutSleep(user.userId).then(data => {
@@ -575,6 +575,135 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		setSleepChartLoading(false);
 	}
 
+
+	
+	// const sleepChartData = {
+	// 	"summaryId": "x2fe5bde-5ffddba8-675c",
+	// 	"calendarDate": "2021-01-13",
+	// 	"durationInSeconds": 26460,
+	// 	"startTimeInSeconds": 1610472360,
+	// 	"startTimeOffsetInSeconds": 28800,
+	// 	"unmeasurableSleepInSeconds": 5220,
+	// 	"deepSleepDurationInSeconds": 4560,
+	// 	"lightSleepDurationInSeconds": 12720,
+	// 	"remSleepInSeconds": 3960,
+	// 	"awakeDurationInSeconds": 720,
+	// 	"sleepLevelsMap": {
+	// 		"deep": [{
+	// 			"startTimeInSeconds": 1610473080,
+	// 			"endTimeInSeconds": 1610475180
+	// 		}, {
+	// 			"startTimeInSeconds": 1610475480,
+	// 			"endTimeInSeconds": 1610475900
+	// 		}, {
+	// 			"startTimeInSeconds": 1610482860,
+	// 			"endTimeInSeconds": 1610484600
+	// 		}, {
+	// 			"startTimeInSeconds": 1610484660,
+	// 			"endTimeInSeconds": 1610484960
+	// 		}],
+	// 		"light": [{
+	// 			"startTimeInSeconds": 1610472360,
+	// 			"endTimeInSeconds": 1610473080
+	// 		}, {
+	// 			"startTimeInSeconds": 1610475180,
+	// 			"endTimeInSeconds": 1610475480
+	// 		}, {
+	// 			"startTimeInSeconds": 1610479320,
+	// 			"endTimeInSeconds": 1610480160
+	// 		}, {
+	// 			"startTimeInSeconds": 1610480640,
+	// 			"endTimeInSeconds": 1610482860
+	// 		}, {
+	// 			"startTimeInSeconds": 1610484960,
+	// 			"endTimeInSeconds": 1610485200
+	// 		}, {
+	// 			"startTimeInSeconds": 1610485260,
+	// 			"endTimeInSeconds": 1610485380
+	// 		}, {
+	// 			"startTimeInSeconds": 1610491140,
+	// 			"endTimeInSeconds": 1610498880
+	// 		}, {
+	// 			"startTimeInSeconds": 1610499000,
+	// 			"endTimeInSeconds": 1610499540
+	// 		}],
+	// 		"rem": [{
+	// 			"startTimeInSeconds": 1610480160,
+	// 			"endTimeInSeconds": 1610480640
+	// 		}, {
+	// 			"startTimeInSeconds": 1610485380,
+	// 			"endTimeInSeconds": 1610486640
+	// 		}, {
+	// 			"startTimeInSeconds": 1610488920,
+	// 			"endTimeInSeconds": 1610491020
+	// 		}, {
+	// 			"startTimeInSeconds": 1610498880,
+	// 			"endTimeInSeconds": 1610499000
+	// 		}],
+	// 		"awake": [{
+	// 			"startTimeInSeconds": 1610475900,
+	// 			"endTimeInSeconds": 1610476020
+	// 		}, {
+	// 			"startTimeInSeconds": 1610478960,
+	// 			"endTimeInSeconds": 1610479320
+	// 		}, {
+	// 			"startTimeInSeconds": 1610484600,
+	// 			"endTimeInSeconds": 1610484660
+	// 		}, {
+	// 			"startTimeInSeconds": 1610485200,
+	// 			"endTimeInSeconds": 1610485260
+	// 		}, {
+	// 			"startTimeInSeconds": 1610491020,
+	// 			"endTimeInSeconds": 1610491140
+	// 		}],
+	// 		"unmeasurable": [{
+	// 			"startTimeInSeconds": 1610476020,
+	// 			"endTimeInSeconds": 1610478960
+	// 		}, {
+	// 			"startTimeInSeconds": 1610486640,
+	// 			"endTimeInSeconds": 1610488920
+	// 		}]
+	// 	},
+	// 	"validation": "ENHANCED_TENTATIVE",
+	// 	"timeOffsetSleepSpo2": {}
+	// }
+
+	// const initSleepBar = () => {
+	// 	console.log('---->initSleepChart', sleepChartData)
+	// 	if(JSON.stringify(sleepChartData) === '{}' || !sleepChartData) {
+	// 		return;
+	// 	}
+	// 	const sleepLevelsMap = sleepChartData.sleepLevelsMap;
+	// 	const unmeasurable = sleepLevelsMap.unmeasurable || []; //0
+	// 	const deep = sleepLevelsMap.deep || [];	//1
+	// 	const light = sleepLevelsMap.light || []; //2
+	// 	const rem = sleepLevelsMap.rem || []; //3
+	// 	const awake = sleepLevelsMap.awake || [];	//4
+
+		
+	// 	// const chartId = "sleepBar" + messageNum;
+	// 	const chartId = "sleepBar";
+	// 		// @ts-ignores
+	// 	const sleepBar = echarts.init(document.getElementById(chartId))
+
+	// 	sleepBar.setOption({
+	// 		xAxis: {
+	// 			type: 'category',
+	// 			data: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110]
+	// 		},
+	// 		yAxis: {
+	// 			type: 'value'
+	// 		},
+	// 		series: [{
+	// 			data: [1,1,1,1,0,0,0,2,2,2,3,3,3,3,4,4,4,4,0,0,0,1,1,1,1,1,2,3,3,3,3,3,0,0,0,1,1,1,1,1,2,3,3,3,3,3,3,3,3,4,4,4,4,0,0,0,1,1,1,1,1,2,3,3,3,3,3,0,0,0,1,1,1,1,1,2,0,1,1,1,1,1,2,1,2,0,1,1,1,1,1,1,1,2,3,3,3,3,3,0,0,0,1,1,1,1,],
+	// 			type: 'bar',
+	// 			// barWidth: 30,
+	// 			// barGap:'0%',/*多个并排柱子设置柱子之间的间距*/
+  //       barCategoryGap:'0%',/*多个并排柱子设置柱子之间的间距*/
+	// 		}]
+	// 	})
+	// }
+
 	const isMaybeEat = (index: any) => {
 		// 11:00-1:00, 17:00:19:00
 		// 220-260, 340-380
@@ -664,6 +793,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		const asyncFetchData = async () => {
 			// @ts-ignore		
 			const fetchSleepData: any = await getLatestDataService(user.userId, DOMAIN.SLEEP);
+			// const fetchSleepData: any = await getHealthDataByDate(user.userId, DOMAIN.SLEEP, );
 			const sleepData = fetchSleepData.data?.latestData || null;
 			setSleepChartData(sleepData)
 		}
@@ -695,10 +825,15 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		showStressChartByDate(nextDate, true);
 	}
 
+	// useEffect(() => {
+	// 	initSleepBar()
+	// },[])
+
 
 	useEffect(() => {
 		console.log('---->111 sleepChartData', sleepChartData)
 		initSleepChart();
+		// initSleepBar();
 	}, [sleepChartData])
 
 
@@ -773,7 +908,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 				</IonToolbar>
 			</IonHeader>
 			<IonContent fullscreen ref={messagesRef}>
-
+			{/* <div id="sleepBar" style={{width: "650px", height: "300px", marginTop: "100px"}}></div> */}
 				{messages && messages.map((message: Message, index: number) => ( 
 					<div className="message-wrapper" key={index}>
 						{ user.userId !== message.userId && 
@@ -811,14 +946,10 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 															<div>暂无数据，请到Garmin connect App中同步</div>
 														</div>
 													}
-													{/* <NavLink to="#" onClick={() => showStressPre()}>查看前一天压力数据</NavLink><br />
-													<NavLink to="#" onClick={() => showStressNext()}>查看后一天压力数据</NavLink> */}
 												</div>
 												<div className="preNext">
 													<NavLink className="nav" to="#" onClick={() => showStressPre()}>前一天 </NavLink><br />
 													<NavLink className="nav"  to="#" onClick={() => showStressNext()}>后一天</NavLink><br />
-													{/* <button onClick={() => showStressPre()}>前一天</button> */}
-													{/* <button onClick={showStressNext}>后一天</button> */}
 												</div>
 												<div className="message"> </div>
 													<div className="message-detail left">
@@ -829,17 +960,20 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 									</div>
 								}
 							
+							
+
 								{ message.text === "sleepChart" && 
 									<div className="chat-bubble left slide-left">
 										<Spin spinning={sleepChartLoading}>
 											<div id={"sleepPie" + message.id} style={{ width: "650px", height: "150px" }}></div>
+											{/* <div id="sleepBar" style={{width: "650px", height: "300px"}}></div> */}
 											<div className="message"> </div>
 												<div className="message-detail left">
 													<span>{message.date}</span>
 											</div>	
 										</Spin>
 									</div>
-								}
+								}	
 							</div>
 						}
 						{ user.userId === message.userId && 

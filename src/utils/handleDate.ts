@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-10-26 01:25:00
- * @LastEditTime: 2021-01-14 00:16:56
+ * @LastEditTime: 2021-01-18 13:30:49
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \my-chatbot-app\src\utils\handleDate.ts
@@ -17,7 +17,8 @@ const formatDate = (date: Date) => {
 	let minute = mm < 10 ? ('0' + mm) : mm; 
 	let ss = date.getSeconds();  
 	let second = minute < 10 ? ('0' + ss) : ss;  
-	return y + '-' + month + '-' + day +' '+ h +':'+ minute;  
+	// return y + '-' + month + '-' + day +' '+ h +':'+ minute;  
+	return y + '-' + month + '-' + '14 ' + h + ':' + minute;  
 };  
 
 const secondToHourMinute = (second: number) => {

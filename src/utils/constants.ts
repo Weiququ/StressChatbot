@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-11-22 18:35:52
- * @LastEditTime: 2021-01-14 14:01:59
+ * @LastEditTime: 2021-01-18 13:35:52
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \my-chatbot-app\src\util\constant.ts
