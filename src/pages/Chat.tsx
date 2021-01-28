@@ -16,7 +16,7 @@ import {
 	IonLabel,
 	IonDatetime,
 } from '@ionic/react';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import './css/Chat.css';
 import { send } from 'ionicons/icons/index';
 import { Message } from '../models/Message';
@@ -25,12 +25,11 @@ import { formatDate, secondToTime, strToTimestamp } from '../utils/handleDate'
 import { getSleepAnswer, getRasaAnswer } from '../service/chatService'
 import { getStressKnowledgeAboutSleep, getTodaySleepData, getSleepDataByDate } from '../service/knowledgeService'
 import { connect } from '../data/connect';
-import { DOMAIN } from '../utils/constants'
-import { getLatestDataService, getHealthDataByDate  } from '../service/deviceService'
+import { DOMAIN, FORMATE_TIME, SLEEP_QUALITY, REASONS_FOR_POOR_SLEEP, EXERCISE, SLEEP_QUALIFIER, WORK_STRESS, OVERALL_DAY_STRESS, DIGESTION, CHRONIC_STRESS, EXERCISE_IS_NOT_ENOUGH, RELAX_TIME_DURING_SLEEP, IS_HIGH_INTENSITY_EXERCISE_EFFECT_SLEEP } from '../utils/constants'
+import { getLatestDataService, getHealthDataByDate, getIsChronicStress, getIsExerciseEnough, getIsShorterSleepTimeAndHigherWorkStress, getIsRelaxLongerDuringSleep, getIsHighIntensityExerciseEffectSleep } from '../service/deviceService'
 import { Spin, Carousel } from 'antd';
-import { secondToHourMinute, dateToString, getPrevDate, getNextDate } from '../utils/handleDate'
+import { secondToHourMinute, dateToString, getPrevDate, getNextDate, timestampToStr } from '../utils/handleDate'
 import { NavLink } from "react-router-dom"
-import Slider from "react-slick";
 import 'antd/dist/antd.css';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -64,6 +63,13 @@ interface StressDetail {
 	"timeOffsetStressLevelValues": object
 }
 
+interface SleepQuality {
+	"sleepDuration": number,
+	"awakenings": number,
+	"fallBackAsleep": number,
+	"REMSleepDuration": number,
+	"DeepSleepDuration": number
+}
 
 interface ChatProps extends MyProps, RouteComponentProps { }
 
@@ -88,7 +94,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 	const [stressDetail, setStressDetail] = useState<StressDetail>();
 	const [stressChartLoading, setStressChartLoading] = useState(true);
 	const [sleepData, setSleepData] = useState<any>();
-	const [exerciseIndex, setExerciseIndex] = useState<Array<any>>();
+	const [afterExerciseIndex, setAfterExerciseIndex] = useState<Array<any>>();
 	const [eatIndex, setEatIndex] = useState<Array<any>>();
 	const [dailyData, setDailyData] = useState<any>({}); 
 	const [sleepChartData,  setSleepChartData] = useState<any>();
@@ -96,6 +102,79 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 	const [isHasStressData, setIsHasStressData] = useState(true);
 	const [isHasStressDataMap, setIsHasStressDataMap] = useState(new Map());
 	const [stressDate, setStressDate] = useState(dateToString(new Date(), "yyyy-MM-dd"));
+	const [nextSleepStartTime, setNextSleepStartTime] = useState(null);
+	const [wakeUp15MinutesIndex, setWakeUp15MinutesIndex] = useState<Array<any>>();
+	const [overallDayStress, setOverallDayStress] = useState('');
+	const [digestionIndex, setDigestionIndex] = useState<Array<any>>();
+	const [isChronicStress, setIsChronicStress] = useState(false);
+	const [isExerciseEnough, setIsExerciseEnough] = useState(false);
+	const [isShorterSleepTimeAndHigherWorkStress, setIsShorterSleepTimeAndHigherWorkStress] = useState(false);
+	const [isRelaxLongerDuringSleep, setIsRelaxLongerDuringSleep] = useState(false);
+	const [isHighIntensityExerciseEffectSleep, setIsHighIntensityExerciseEffectSleep] = useState(false);
+	const [relaxTimeDuringSleepIndex, setRelaxTimeDuringSleepIndex] = useState<Array<any>>();
+	const [workStressIndex, setWorkStressIndex] = useState<Array<any>>();
+
+	const ref = useRef({ wakeUp15MinutesIndex, afterExerciseIndex});
+	
+
+	//入睡时间
+	let sleepStartTime = useMemo(() => {
+		console.log('--->sleepData, stressDetail', sleepData, stressDetail)
+		if (!sleepData || !stressDetail) return null;
+		const calendarDate = stressDetail?.calendarDate;
+		const todayTimeStamp = strToTimestamp(calendarDate + ' 00:00:00');
+		const sleepStartTime = sleepData.startTimeInSeconds < todayTimeStamp ? todayTimeStamp : sleepData.startTimeInSeconds;
+		return sleepStartTime
+	}, [sleepData, stressDetail])
+	
+
+	//入睡时间在压力图中对应的下标
+	let sleepStartIndex = useMemo(() => {
+		console.log('--->sleepStartTime', sleepStartTime)
+		if (!sleepStartTime) return -1;
+		const calendarDate = stressDetail?.calendarDate;
+		const todayTimeStamp = strToTimestamp(calendarDate + ' 00:00:00');
+		const stressKeys = Object.keys(stressDetail!.timeOffsetStressLevelValues);
+
+		// for (let i = 0; i < stressKeys.length; i++) {
+		// 	if (sleepStartTime >= (todayTimeStamp + parseInt(stressKeys[i])) && sleepStartTime < (todayTimeStamp + parseInt(stressKeys[i]) + 180)) {
+		// 		console.log('--->sleepStartIndex', i)
+		// 		return i;
+		// 	}
+		// }	
+		const sleepStartIndex = Math.floor((sleepStartTime - todayTimeStamp - parseInt(stressKeys[0])) / 180);
+		console.log('--->sleepStartIndex 1', sleepStartIndex)
+		return sleepStartIndex
+		
+	}, [sleepStartTime])
+
+
+	//睡醒时间
+	let sleepEndTime = useMemo(() => {
+		if (!sleepData) return null;
+		const sleepEndTime = sleepData.startTimeInSeconds + sleepData.durationInSeconds + sleepData.awakeDurationInSeconds;
+		return sleepEndTime;
+	}, [sleepData])
+
+
+	//睡醒时间在压力图中对应的下标
+	let sleepEndIndex = useMemo(() => {
+		if (!sleepEndTime) return -1;
+		const calendarDate = stressDetail?.calendarDate;
+		const todayTimeStamp = strToTimestamp(calendarDate + ' 00:00:00');
+		const stressKeys = Object.keys(stressDetail!.timeOffsetStressLevelValues);
+
+		for (let i = 0; i < stressKeys.length; i++) {
+			if (sleepEndTime >= (todayTimeStamp + parseInt(stressKeys[i])) && sleepEndTime < (todayTimeStamp + parseInt(stressKeys[i]) + 180)) {
+				return i;
+			}
+		}	
+		// const sleepEndIndex = Math.floor((sleepEndTime - todayTimeStamp - parseInt(stressKeys[0])) / 180);
+		// console.log('--->sleepEndTime', sleepEndTime)
+		// console.log('--->sleepEndIndex', sleepEndIndex)
+		// return sleepEndIndex;
+	}, [sleepEndTime])
+
 
 	// const [stressDataArray, setStressDateArray] = useState<Array<any>>();
 
@@ -157,33 +236,33 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		console.log("ScrollToTheBottom");
 	}
 	
-	useEffect(() => {
-		// @ts-ignore
-		user.userId = 11
-		if(user && user.userId >= 0) {
-			// @ts-ignore
-			getStressKnowledgeAboutSleep(user.userId).then(data => {
-				console.log('---->data', data)
-				const sleepStressInsights = data.sleepStressInsights;
-				console.log('sleepStressInsights', Object.values(sleepStressInsights))
-				const len = Object.values(sleepStressInsights).length;
-				if(len > 0) {
-					const index = Math.floor((Math.random() * len));	//随机选择一条
-					let responseMessage = {
-						id: messageNum + 1,
-						date: formatDate(new Date()),
-						userId: chatbot.id,
-						username: chatbot.username,
-						avatar: chatbot.avatar,
-						text: Object.values(sleepStressInsights)[index]
-					}
-					setMessages(messages => [...messages, responseMessage])
-					setMessageNum(messageNum => messageNum + 1)
-					scrollToBottom()
-				}
-			})
-		}
-	},[])
+	// useEffect(() => {
+	// 	// @ts-ignore
+	// 	user.userId = 11
+	// 	if(user && user.userId >= 0) {
+	// 		// @ts-ignore
+	// 		getStressKnowledgeAboutSleep(user.userId).then(data => {
+	// 			console.log('---->data', data)
+	// 			const sleepStressInsights = data.sleepStressInsights;
+	// 			console.log('sleepStressInsights', Object.values(sleepStressInsights))
+	// 			const len = Object.values(sleepStressInsights).length;
+	// 			if(len > 0) {
+	// 				const index = Math.floor((Math.random() * len));	//随机选择一条
+	// 				let responseMessage = {
+	// 					id: messageNum + 1,
+	// 					date: formatDate(new Date()),
+	// 					userId: chatbot.id,
+	// 					username: chatbot.username,
+	// 					avatar: chatbot.avatar,
+	// 					text: Object.values(sleepStressInsights)[index]
+	// 				}
+	// 				setMessages(messages => [...messages, responseMessage])
+	// 				setMessageNum(messageNum => messageNum + 1)
+	// 				scrollToBottom()
+	// 			}
+	// 		})
+	// 	}
+	// },[])
 
 
 	const initStressPieChart = () => {
@@ -269,17 +348,50 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		})
 	} 
 
+	const getTips = (item: any) => {
+		const value = item.value;	//压力值
+		const index = item.dataIndex;
+		if(value === -10) {
+			return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
+				item.name + '<br/><br/>' 
+				+ item.marker + "活动中" + '<br/><br/>' 
+		} else if(value === -1) {
+			return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
+				item.name + '<br/><br/>' 
+				+ "无法测量" + '<br/><br/>' 
+		} else {
+			return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
+				item.name + '<br/><br/>' 
+				+ item.marker
+				+ item.seriesName + ' : ' + value + '<br/><br/>'
+		}
+	}
+
 
 	const initStressDetailChart = () => {
+		console.log('--->sleepStartIndex 2', sleepStartIndex)
 		console.log("stressDetail", stressDetail)
 		if(JSON.stringify(stressDetail) === '{}' || !stressDetail) return
 		const calendarDate = stressDetail.calendarDate;
-		const timeStamp = strToTimestamp(calendarDate + ' 00:00:00');
-
-		console.log(sleepData.startTime, timeStamp, sleepData.startTime - timeStamp)
-		const startIndex = sleepData.startTime < timeStamp ? 0: Math.floor((sleepData.startTime - timeStamp) / 180);
-		const endIndex = Math.floor((sleepData.endTime - timeStamp) / 180); 
-
+		const todayTimeStamp = strToTimestamp(calendarDate + ' 00:00:00');
+		const stressKeys = Object.keys(stressDetail.timeOffsetStressLevelValues);
+		console.log('--->sleepData', sleepData);
+		// const sleepStartTime = sleepData.startTimeInSeconds < todayTimeStamp ? todayTimeStamp : sleepData.startTimeInSeconds;
+		// // const sleepStartIndex = sleepData.startTimeInSeconds < todayTimeStamp ? 0: Math.floor((sleepData.startTimeInSeconds - todayTimeStamp - parseInt(stressKeys[0])) / 180);
+		// const sleepStartIndex = Math.floor((sleepStartTime - todayTimeStamp - parseInt(stressKeys[0])) / 180);
+		// const sleepEndTime = sleepData.startTimeInSeconds + sleepData.durationInSeconds + sleepData.awakeDurationInSeconds;
+		// console.log('--->sleepEndTime', sleepEndTime);
+		// const sleepEndIndex = Math.floor((sleepEndTime - todayTimeStamp - parseInt(stressKeys[0])) / 180);
+		// console.log('--->sleepEndIndex', sleepEndIndex)
+		let nextSleepStartIndex = -1;
+		if (nextSleepStartTime) {
+			// @ts-ignore
+			nextSleepStartIndex = Math.floor((nextSleepStartTime - todayTimeStamp - parseInt(stressKeys[0])) / 180);
+		}
+		let sleepQuality: any;
+		if(sleepData) {
+			sleepQuality = getSleepQuality();
+		}
 		const chartId = "stressDetailChart" + messageNum;
 			// @ts-ignores
 		const stressDetailChart = echarts.init(document.getElementById(chartId))
@@ -299,60 +411,126 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 					lineHeight: 56,
 				},
 				formatter: (params: any) => {
-					const value = params[0].value;
-					// console.log('exerciseIndex', exerciseIndex)
-					// console.log('eatIndex', eatIndex)
+					const value = params[0].value;	//压力值
 					const index = params[0].dataIndex;
-					if (value === -10) {
+					let sleepQualityText;
+					if (sleepQuality && sleepQuality.length > 0) {
+						sleepQualityText = sleepQuality[0]
+					}
+					console.log('--->isChronicStress', isChronicStress)
+					console.log('--->isRelaxLongerDuringSleep ', isRelaxLongerDuringSleep)
+					console.log('--->isHighIntensityExerciseEffectSleep ', isHighIntensityExerciseEffectSleep)
+					console.log('--->workStressIndex ', workStressIndex)
+					
+					if (index < 5 && isChronicStress) {
+						return getTips(params[0]) 
+						+ CHRONIC_STRESS
+						+	'</div>'
+					} else if(index < 5 && !isExerciseEnough) {
+						return getTips(params[0]) 
+						+ EXERCISE_IS_NOT_ENOUGH
+						+	'</div>'
+					} else if (isHighIntensityExerciseEffectSleep && wakeUp15MinutesIndex?.indexOf(index)! >= 0) {
+						return getTips(params[0]) 
+						+ IS_HIGH_INTENSITY_EXERCISE_EFFECT_SLEEP
+						+	'</div>'
+					} else if (wakeUp15MinutesIndex?.indexOf(index)! >= 0 ) {	//睡醒之后的十五分钟内
+						if(sleepQuality[0] === SLEEP_QUALITY.BAD) {
+							console.log('--->reasons', sleepQuality[1])
+							const reason = sleepQuality[1][Math.floor(Math.random() * sleepQuality[1].length)]; 
+							// @ts-ignore
+							sleepQualityText =	sleepQualityText.replace('[原因]', reason);
+						}
+						// console.log('--->sleepQualityText', sleepQualityText)
+						return getTips(params[0]) 
+						+ sleepQualityText
+						+	'</div>'
+					} else if (afterExerciseIndex?.indexOf(index)! >= 0) {	//运动后压力升高的十五分钟内
+						return getTips(params[0])
+						+ EXERCISE.AFTER_EXERCISE
+						+	'</div>'
+					} else if (digestionIndex?.indexOf(index)! >= 0) {	//可能的消化时间
+						return getTips(params[0])
+						+ DIGESTION
+						+	'</div>'
+					} else if (stressKeys.length - index <= 5) {	//一整天结束的最后15分钟
+						return getTips(params[0])
+						+ overallDayStress
+						+	'</div>'
+					} else if (isRelaxLongerDuringSleep && index > sleepStartIndex && index < sleepEndIndex! && value > 0 && value <= 25) {
+						return getTips(params[0])
+						+ RELAX_TIME_DURING_SLEEP
+						+	'</div>'
+					} else if (isShorterSleepTimeAndHigherWorkStress && workStressIndex?.indexOf(index)! > 0) {
+						return getTips(params[0])
+						+ WORK_STRESS
+						+	'</div>'
+					} else if (value === -10) {
 						return params[0].name + '<br/><br/>' 
-						+ params[0].marker + "活动中"
+							+ params[0].marker + "活动中"
 					} else if (value === -1) {
 						return params[0].name + '<br/><br/>' 
 							+ "无法测量"
-					} else if (index >= startIndex && index <= endIndex) {
-						if (value > 25) {
-							return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
-							params[0].name + '<br/><br/>' 
-							+ params[0].marker
-							+ params[0].seriesName + ' : ' + value + '<br/><br/>' +
-							'睡眠期间的压力值高，可能是因为白天运动过度、睡前饮酒过多、睡眠障碍等多方面原因造成的。请您关注自己的健康状况，放松身心，合理安排工作和休息时间。'
-							+	'</div>'
-						} else {
-							return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
-							params[0].name + '<br/><br/>' 
-							+ params[0].marker
-							+ params[0].seriesName + ' : ' + value+'<br/><br/>' +
-							'优质的睡眠能帮助您从白天的压力中恢复过来'
-							+	'</div>' 
-						}
-					// @ts-ignore
-					} else if (exerciseIndex?.indexOf(index) >= 0) {
-						return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
-							params[0].name + '<br/><br/>' 
-							+ params[0].marker
-							+ params[0].seriesName + ' : ' + value + '<br/><br/>' 
-							+ '<p>'+ '压力状态受自主神经系统控制，其中交感神经活跃程度的提高会提高压力水平。' + '<span style="color:red;">运动</span>会提高交感神经系统的活跃程度，导致运动结束后的一段时间内检测到的压力值升高。' + '</p>'
-							// + "压力状态受自主神经系统控制，其中交感神经活跃程度的提高会提高压力水平，副交感神经活动程度的提高会降低压力水平。" + '<br/>' + "而自主神经系统的状态可以通过心率变异性(HRV)反映。运动会提高交感神经系统的活跃程度，导致运动结束后的一段时间内检测到的压力值升高。"
-							+	'</div>' 
-					// @ts-ignore
-					} else if(eatIndex?.indexOf(index) >= 0) {
-						return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
-						params[0].name + '<br/><br/>' 
-						+ params[0].marker
-						+ params[0].seriesName + ' : ' + value + '<br/><br/>' 
-						+ '<p>'+ '研究表明酒精、咖啡、以及一些不健康的饮食（例如高碳水化合物、高脂或反式脂肪食物，常见于包装零食，烤货，块状人造黄油，膨化食品和快餐等）会降低HRV，导致压力值升高。' + '</p>'
-						// + "压力状态受自主神经系统控制，其中交感神经活跃程度的提高会提高压力水平，副交感神经活动程度的提高会降低压力水平。" + '<br/>' + "而自主神经系统的状态可以通过心率变异性(HRV)反映。运动会提高交感神经系统的活跃程度，导致运动结束后的一段时间内检测到的压力值升高。"
-						+	'</div>' 
-					}
-					else {
+					}	else {
 						return params[0].name + '<br/><br/>' 
 							+ params[0].marker
 							+ params[0].seriesName + ' : ' + value + '<br/>'
-					} 
-				},
+					}
+				}
+				// formatter: (params: any) => {
+				// 	const value = params[0].value;
+				// 	// console.log('exerciseIndex', exerciseIndex)
+				// 	// console.log('eatIndex', eatIndex)
+				// 	const index = params[0].dataIndex;
+				// 	if (value === -10) {
+				// 		return params[0].name + '<br/><br/>' 
+				// 		+ params[0].marker + "活动中"
+				// 	} else if (value === -1) {
+				// 		return params[0].name + '<br/><br/>' 
+				// 			+ "无法测量"
+				// 	} else if (index >= sleepStartIndex && index <= sleepEndIndex) {
+				// 		if (value > 25) {
+				// 			return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
+				// 			params[0].name + '<br/><br/>' 
+				// 			+ params[0].marker
+				// 			+ params[0].seriesName + ' : ' + value + '<br/><br/>' +
+				// 			'睡眠期间的压力值高，可能是因为白天运动过度、睡前饮酒过多、睡眠障碍等多方面原因造成的。请您关注自己的健康状况，放松身心，合理安排工作和休息时间。'
+				// 			+	'</div>'
+				// 		} else {
+				// 			return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
+				// 			params[0].name + '<br/><br/>' 
+				// 			+ params[0].marker
+				// 			+ params[0].seriesName + ' : ' + value+'<br/><br/>' +
+				// 			'优质的睡眠能帮助您从白天的压力中恢复过来'
+				// 			+	'</div>' 
+				// 		}
+				// 	// @ts-ignore
+				// 	} else if (exerciseIndex?.indexOf(index) >= 0) {
+				// 		return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
+				// 			params[0].name + '<br/><br/>' 
+				// 			+ params[0].marker
+				// 			+ params[0].seriesName + ' : ' + value + '<br/><br/>' 
+				// 			+ '<p>'+ '压力状态受自主神经系统控制，其中交感神经活跃程度的提高会提高压力水平。' + '<span style="color:red;">运动</span>会提高交感神经系统的活跃程度，导致运动结束后的一段时间内检测到的压力值升高。' + '</p>'
+				// 			// + "压力状态受自主神经系统控制，其中交感神经活跃程度的提高会提高压力水平，副交感神经活动程度的提高会降低压力水平。" + '<br/>' + "而自主神经系统的状态可以通过心率变异性(HRV)反映。运动会提高交感神经系统的活跃程度，导致运动结束后的一段时间内检测到的压力值升高。"
+				// 			+	'</div>' 
+				// 	// @ts-ignore
+				// 	} else if(eatIndex?.indexOf(index) >= 0) {
+				// 		return '<div style="max-width: 200px; line-height: 15px; display:block;word-break: break-all;word-wrap: break-word;white-space:pre-wrap">' + 
+				// 		params[0].name + '<br/><br/>' 
+				// 		+ params[0].marker
+				// 		+ params[0].seriesName + ' : ' + value + '<br/><br/>' 
+				// 		+ '<p>'+ '研究表明酒精、咖啡、以及一些不健康的饮食（例如高碳水化合物、高脂或反式脂肪食物，常见于包装零食，烤货，块状人造黄油，膨化食品和快餐等）会降低HRV，导致压力值升高。' + '</p>'
+				// 		// + "压力状态受自主神经系统控制，其中交感神经活跃程度的提高会提高压力水平，副交感神经活动程度的提高会降低压力水平。" + '<br/>' + "而自主神经系统的状态可以通过心率变异性(HRV)反映。运动会提高交感神经系统的活跃程度，导致运动结束后的一段时间内检测到的压力值升高。"
+				// 		+	'</div>' 
+				// 	}
+				// 	else {
+				// 		return params[0].name + '<br/><br/>' 
+				// 			+ params[0].marker
+				// 			+ params[0].seriesName + ' : ' + value + '<br/>'
+				// 	} 
+				// },
 			},
 			xAxis: {
-				// @ts-ignore
 				data: Object.keys(stressDetail.timeOffsetStressLevelValues).map(function (item) {
 					return secondToTime(item);
 				}),
@@ -362,15 +540,15 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 					// interval: 79,
 					interval: 0,
 					formatter: (value: any, index: number) => {
-						if (index === startIndex) {
-							return '{fallASleepValue|} '+ value.split('-')[0];
-							// return '{fallASleepValue|}';
-						} else if(index === endIndex) {
-							return '{getUpValue|} ' + value.split('-')[0];
-							// return '{getUpValue|}';
+						if (index === sleepStartIndex) {
+							return '{fallASleepValue|} '+ timestampToStr(sleepStartTime, FORMATE_TIME.HOUR_MINUTE);
+						} else if(index === sleepEndIndex) {
+							return '{getUpValue|} ' + timestampToStr(sleepEndTime, FORMATE_TIME.HOUR_MINUTE);
+						} else if(index === nextSleepStartIndex) {
+							return '{fallASleepValue|} '+ timestampToStr(nextSleepStartTime!, FORMATE_TIME.HOUR_MINUTE);
 						} else if(index % 80 === 0) {
 							return '\n\n\n' + value.split('-')[0]
-						}
+						} 
 						return ''
 					},
 					rich: {
@@ -393,7 +571,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 				axisTick: {
 					show: true,	//x轴刻度线
 					interval: (index: number, value: string) => {
-						if (index === startIndex || index === endIndex || index % 80 === 0) {
+						if (index === sleepStartIndex || index === sleepEndIndex || index % 80 === 0) {
 							return true;
 						} else {
 							return false;
@@ -519,7 +697,6 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		sleepPie.setOption({
 			animation: false, // 取消动画
 			title: {
-				// @ts-ignore
 				text: sleepChartData?.calendarDate || '',
 				left: 'center',
 				textStyle: {
@@ -576,158 +753,42 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 	}
 
 
-	
-	// const sleepChartData = {
-	// 	"summaryId": "x2fe5bde-5ffddba8-675c",
-	// 	"calendarDate": "2021-01-13",
-	// 	"durationInSeconds": 26460,
-	// 	"startTimeInSeconds": 1610472360,
-	// 	"startTimeOffsetInSeconds": 28800,
-	// 	"unmeasurableSleepInSeconds": 5220,
-	// 	"deepSleepDurationInSeconds": 4560,
-	// 	"lightSleepDurationInSeconds": 12720,
-	// 	"remSleepInSeconds": 3960,
-	// 	"awakeDurationInSeconds": 720,
-	// 	"sleepLevelsMap": {
-	// 		"deep": [{
-	// 			"startTimeInSeconds": 1610473080,
-	// 			"endTimeInSeconds": 1610475180
-	// 		}, {
-	// 			"startTimeInSeconds": 1610475480,
-	// 			"endTimeInSeconds": 1610475900
-	// 		}, {
-	// 			"startTimeInSeconds": 1610482860,
-	// 			"endTimeInSeconds": 1610484600
-	// 		}, {
-	// 			"startTimeInSeconds": 1610484660,
-	// 			"endTimeInSeconds": 1610484960
-	// 		}],
-	// 		"light": [{
-	// 			"startTimeInSeconds": 1610472360,
-	// 			"endTimeInSeconds": 1610473080
-	// 		}, {
-	// 			"startTimeInSeconds": 1610475180,
-	// 			"endTimeInSeconds": 1610475480
-	// 		}, {
-	// 			"startTimeInSeconds": 1610479320,
-	// 			"endTimeInSeconds": 1610480160
-	// 		}, {
-	// 			"startTimeInSeconds": 1610480640,
-	// 			"endTimeInSeconds": 1610482860
-	// 		}, {
-	// 			"startTimeInSeconds": 1610484960,
-	// 			"endTimeInSeconds": 1610485200
-	// 		}, {
-	// 			"startTimeInSeconds": 1610485260,
-	// 			"endTimeInSeconds": 1610485380
-	// 		}, {
-	// 			"startTimeInSeconds": 1610491140,
-	// 			"endTimeInSeconds": 1610498880
-	// 		}, {
-	// 			"startTimeInSeconds": 1610499000,
-	// 			"endTimeInSeconds": 1610499540
-	// 		}],
-	// 		"rem": [{
-	// 			"startTimeInSeconds": 1610480160,
-	// 			"endTimeInSeconds": 1610480640
-	// 		}, {
-	// 			"startTimeInSeconds": 1610485380,
-	// 			"endTimeInSeconds": 1610486640
-	// 		}, {
-	// 			"startTimeInSeconds": 1610488920,
-	// 			"endTimeInSeconds": 1610491020
-	// 		}, {
-	// 			"startTimeInSeconds": 1610498880,
-	// 			"endTimeInSeconds": 1610499000
-	// 		}],
-	// 		"awake": [{
-	// 			"startTimeInSeconds": 1610475900,
-	// 			"endTimeInSeconds": 1610476020
-	// 		}, {
-	// 			"startTimeInSeconds": 1610478960,
-	// 			"endTimeInSeconds": 1610479320
-	// 		}, {
-	// 			"startTimeInSeconds": 1610484600,
-	// 			"endTimeInSeconds": 1610484660
-	// 		}, {
-	// 			"startTimeInSeconds": 1610485200,
-	// 			"endTimeInSeconds": 1610485260
-	// 		}, {
-	// 			"startTimeInSeconds": 1610491020,
-	// 			"endTimeInSeconds": 1610491140
-	// 		}],
-	// 		"unmeasurable": [{
-	// 			"startTimeInSeconds": 1610476020,
-	// 			"endTimeInSeconds": 1610478960
-	// 		}, {
-	// 			"startTimeInSeconds": 1610486640,
-	// 			"endTimeInSeconds": 1610488920
-	// 		}]
-	// 	},
-	// 	"validation": "ENHANCED_TENTATIVE",
-	// 	"timeOffsetSleepSpo2": {}
-	// }
-
-	// const initSleepBar = () => {
-	// 	console.log('---->initSleepChart', sleepChartData)
-	// 	if(JSON.stringify(sleepChartData) === '{}' || !sleepChartData) {
-	// 		return;
-	// 	}
-	// 	const sleepLevelsMap = sleepChartData.sleepLevelsMap;
-	// 	const unmeasurable = sleepLevelsMap.unmeasurable || []; //0
-	// 	const deep = sleepLevelsMap.deep || [];	//1
-	// 	const light = sleepLevelsMap.light || []; //2
-	// 	const rem = sleepLevelsMap.rem || []; //3
-	// 	const awake = sleepLevelsMap.awake || [];	//4
-
-		
-	// 	// const chartId = "sleepBar" + messageNum;
-	// 	const chartId = "sleepBar";
-	// 		// @ts-ignores
-	// 	const sleepBar = echarts.init(document.getElementById(chartId))
-
-	// 	sleepBar.setOption({
-	// 		xAxis: {
-	// 			type: 'category',
-	// 			data: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110]
-	// 		},
-	// 		yAxis: {
-	// 			type: 'value'
-	// 		},
-	// 		series: [{
-	// 			data: [1,1,1,1,0,0,0,2,2,2,3,3,3,3,4,4,4,4,0,0,0,1,1,1,1,1,2,3,3,3,3,3,0,0,0,1,1,1,1,1,2,3,3,3,3,3,3,3,3,4,4,4,4,0,0,0,1,1,1,1,1,2,3,3,3,3,3,0,0,0,1,1,1,1,1,2,0,1,1,1,1,1,2,1,2,0,1,1,1,1,1,1,1,2,3,3,3,3,3,0,0,0,1,1,1,1,],
-	// 			type: 'bar',
-	// 			// barWidth: 30,
-	// 			// barGap:'0%',/*多个并排柱子设置柱子之间的间距*/
-  //       barCategoryGap:'0%',/*多个并排柱子设置柱子之间的间距*/
-	// 		}]
-	// 	})
-	// }
-
-	const isMaybeEat = (index: any) => {
-		// 11:00-1:00, 17:00:19:00
+	const isMaybeMealtime = (calendarDate: string, timestamp: number) => {
+		// 11:00-13:00, 17:00-19:00
 		// 220-260, 340-380
-		if((index >= 220 && index < 260) || (index >= 340 && index < 380)) {
+		// console.log('---->strToTimestamp', timestamp, " ", strToTimestamp(calendarDate + " 11:00:00") )
+		if((timestamp >= strToTimestamp(calendarDate + " 11:00:00")  && timestamp <= strToTimestamp(calendarDate + " 13:00:00")) 
+		|| (timestamp >= strToTimestamp(calendarDate + " 17:00:00")  && timestamp <= strToTimestamp(calendarDate + " 19:00:00"))) {
 			return true;
 		}
 		return false;
 	}
 
 
-	const showStressChartByDate = async (date: String, isPreNext: boolean) => {
+	const isMaybeWorkTime = (calendarDate: string, timestamp: number) => {
+		if((timestamp >= strToTimestamp(calendarDate + " 09:00:00")  && timestamp <= strToTimestamp(calendarDate + " 11:00:00")) 
+		|| (timestamp >= strToTimestamp(calendarDate + " 13:00:00")  && timestamp <= strToTimestamp(calendarDate + " 17:00:00"))) {
+			return true;
+		}
+		return false;
+	}
+
+	const showStressChartByDate = async (date: string, isPreNext: boolean) => {
 		console.log('--->date', date)
 		// TODO: userId记得改回来
-		user.userId = 11
-		// @ts-ignore
-		if (user.userId < 0) {
+		// user.userId = 11
+		if (user.userId! < 0) {
 			history.push('/login', {direction: 'none'})
 			return;
 		}
 
 		setStressChartLoading(true)
-		const asyncFetchData = async (theDate: String) => {
-			// @ts-ignore
-			const fetchDailyData: any = await getHealthDataByDate(user.userId, DOMAIN.DAILY, theDate);
+		const asyncFetchData = async (theDate: string) => {
+			const fetchIsHighIntensityExerciseEffectSleep: any = await getIsHighIntensityExerciseEffectSleep(user.userId!, theDate);
+			const result = fetchIsHighIntensityExerciseEffectSleep.data?.result || false;
+			setIsHighIntensityExerciseEffectSleep(result);
+
+			const fetchDailyData: any = await getHealthDataByDate(user?.userId!, DOMAIN.DAILY, theDate);
 			// const dailyData = fetchDailyData.data?.latestData || null;
 			const dailyData = fetchDailyData?.data?.data || null;
 			setDailyData(dailyData);
@@ -741,14 +802,47 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 				return false;
 			}
 			setStressDetail(stressData);
+
+			// 17：00之后再显示
+			const nowTime = new Date();
+			if(nowTime.getHours() >= 17 || strToTimestamp(date) < strToTimestamp(dateToString(nowTime, 'yyyy-MM-dd'))) {
+				const fetchIsShorterSleepTimeAndHigherWorkStress: any = await getIsShorterSleepTimeAndHigherWorkStress(user.userId!, theDate);
+				const isShorterSleepTimeAndHigherWorkStress = fetchIsShorterSleepTimeAndHigherWorkStress.data?.result || false;
+				setIsShorterSleepTimeAndHigherWorkStress(isShorterSleepTimeAndHigherWorkStress);
+			} 
 			
-			const date = stressData?.calendarDate;
+			const fetchIsRelaxLongerDuringSleep: any = await getIsRelaxLongerDuringSleep(user.userId!, theDate);
+			const isRelaxLongerDuringSleep = fetchIsRelaxLongerDuringSleep.data?.result || false;
+			console.log('isRelaxLongerDuringSleep', isRelaxLongerDuringSleep)
+			setIsRelaxLongerDuringSleep(isRelaxLongerDuringSleep);
+				
+			
 			// @ts-ignore		
-			const fetchSleepData: any = await getSleepDataByDate(user.userId, date);
-			const sleepData = fetchSleepData.sleepData || {};
-			setSleepData(sleepData)
+			const fetchSleepData: any = await getHealthDataByDate(user.userId, DOMAIN.SLEEP, theDate);
+			// const fetchSleepData: any = await getSleepDataByDate(user.userId, date);
+			const sleepData = fetchSleepData.data?.data || {};
+			const nextSleepStartTime = fetchSleepData.data?.nextSleepStartTime;
+			setNextSleepStartTime(nextSleepStartTime);
+			setSleepData(sleepData);
+
+			const fetchIsChronicStress: any = await getIsChronicStress(user.userId!, theDate);
+			const chronicStress = fetchIsChronicStress.data?.isChronicStress || false;
+			console.log('--->123 isChronicStress', chronicStress)
+			setIsChronicStress(chronicStress);
+		
+
+			//周一才会需要上一周的运动量情况
+			if(new Date(date + " 00:00:00").getDay() === 1) {
+				const fetchIsExerciseEnough: any = await getIsExerciseEnough(user.userId!, theDate);
+				const isExerciseEnough = fetchIsExerciseEnough.data?.isExerciseEnough || false;
+				setIsExerciseEnough(isExerciseEnough);
+			} else {
+				setIsExerciseEnough(true);
+			}
+
 			return true;
 		}
+
 		const id = messageNum + 1;
 		if (!isPreNext) {
 			let responseMessage = {
@@ -766,25 +860,21 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		
 		const hasData = await asyncFetchData(date);
 		setStressChartLoading(false);	
-		console.log('--->hasdata', hasData)
 		setIsHasStressData(hasData);
-		// @ts-ignore
-		// setIsHasStressDataMap(isHasStressDataMap.set(id + '', hasData))
-		console.log('isHasStressDataMap', isHasStressDataMap)
 	}
 
 
 	const showStressDetailChart = () => {
 		console.log('---->showStressDetailChart')
-		const date = 	dateToString(new Date(), "yyyy-MM-dd");
-		// const date = "2021-01-05";
+		const date = dateToString(new Date(), "yyyy-MM-dd");
+		// showStressChartByDate('2021-01-21', false);
 		showStressChartByDate(date, false);
 	}
 
 
 	const showSleepPie = () => {
 		setSleepChartLoading(true);
-		user.userId = 11
+		// user.userId = 11
 		// @ts-ignore
 		if (user.userId < 0) {
 			history.push('/login', {direction: 'none'})
@@ -811,6 +901,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		asyncFetchData();
 	}
 
+
 	const showStressPre = () => {
 		// const date = 	dateToString(new Date(), "yyyy-MM-dd");
 		const prevDate = getPrevDate(stressDate);
@@ -818,6 +909,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		showStressChartByDate(prevDate, true);
 	}
 
+	
 	const showStressNext = () => {
 		// const date = 	dateToString(new Date(), "yyyy-MM-dd");
 		const nextDate = getNextDate(stressDate);
@@ -829,72 +921,285 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 	// 	initSleepBar()
 	// },[])
 
+	const getSleepQuality = () => {
+		const sleepDuration = sleepData.durationInSeconds - sleepData.unmeasurableSleepInSeconds;
+		console.log('--->sleepData', sleepData)
+		console.log('unmeasurableSleepDurationInSeconds', sleepData.unmeasurableSleepInSeconds)
+		const awakenings = sleepData.sleepLevelsMap?.awake?.length;
+		const fallBackAsleepArray = sleepData.sleepLevelsMap?.awake?.map((item: any) =>
+			item.endTimeInSeconds - item.startTimeInSeconds
+		)
+		const remSleepDuration = sleepData.remSleepInSeconds;
+		const deepSleepDuration = sleepData.deepSleepDurationInSeconds;
+		const remPercentage = remSleepDuration / sleepDuration;
+		const deepPercentage = deepSleepDuration / sleepDuration; 
+		const reasonsPoor = [];
+		if(sleepDuration >= 7*60*60 && sleepDuration <= 9*60*60 && awakenings <= 1 && (!fallBackAsleepArray || fallBackAsleepArray.length === 0 || fallBackAsleepArray[0] <= 20 * 60) 
+			&& remPercentage >= 0.21 && remPercentage <= 0.3 && deepPercentage >= 0.16 && deepPercentage <= 0.2) {
+			return [SLEEP_QUALITY.GOOD];
+		}
+		console.log('---->sleepDuration', sleepDuration)
+		if(sleepDuration < 5*60*60) {		
+			reasonsPoor.push(REASONS_FOR_POOR_SLEEP.SLEEP_SHORT);
+		}
+		if (awakenings >= 4) {
+			reasonsPoor.push(REASONS_FOR_POOR_SLEEP.AWAKENINGS_TOO_MUCH);
+		}
+		if (fallBackAsleepArray && fallBackAsleepArray.length > 0 && fallBackAsleepArray.some((item: number) => item >= 41*60)) {
+			reasonsPoor.push(REASONS_FOR_POOR_SLEEP.FALLBACK_TOO_LONG)
+		}
+		if (deepPercentage <= 0.05) {
+			reasonsPoor.push(REASONS_FOR_POOR_SLEEP.DEEP_TOO_LITTLE)
+		}
+		if (remPercentage >= 0.41) {
+			reasonsPoor.push(REASONS_FOR_POOR_SLEEP.REM_TOO_MUCH)
+		} 
+		if (reasonsPoor.length > 0) {
+			return [SLEEP_QUALITY.BAD, reasonsPoor];
+		} else {
+			return [SLEEP_QUALITY.JUSTSOSO];
+		}
+	}
+
 
 	useEffect(() => {
-		console.log('---->111 sleepChartData', sleepChartData)
 		initSleepChart();
 		// initSleepBar();
 	}, [sleepChartData])
 
 
-	useEffect(() => {
+	// useEffect(() => {
 
-		console.log('useEffect test', stressDetail, sleepData, dailyData)
+	// 	console.log('useEffect test', stressDetail, sleepData, dailyData)
 
-		if(!stressDetail || !sleepData || !dailyData) return;
+	// 	if(!stressDetail || !sleepData || !dailyData) return;
 		
-		const stressArr: Array<number> = Object.values(stressDetail.timeOffsetStressLevelValues);
+	// 	const stressArr: Array<number> = Object.values(stressDetail.timeOffsetStressLevelValues);
+	// 	const afterActivityUnable = [];
 
-		const afterActivityUnable = [];
+	// 	for(let i = 0; i < stressArr.length; i++) {
+	// 		if(i > 0 && (stressArr[i-1] === -2 || afterActivityUnable.indexOf(i-1) >= 0) && stressArr[i] === -1) {
+	// 			afterActivityUnable.push(i);
+	// 		}
+	// 	}
 
-		for(let i = 0; i < stressArr.length; i++) {
-			if(i > 0 && (stressArr[i-1] === -2 || afterActivityUnable.indexOf(i-1) >= 0) && stressArr[i] === -1) {
+	// 	const exercise = [];
+	// 	let continuousNum = 0;
+	// 	for(let i = 0; i < stressArr.length; i++) {
+	// 		// @ts-ignore
+	// 		//可能是运动导致压力升高的规则：一个元素值为-2,其后连续1,2,3,4,5个元素的值大于25，则后面这5个元素都标记为受运动影响的压力升高
+	// 		// console.log('continuousNum: ', continuousNum)
+	// 		if(continuousNum <= 4 && (i > 0 && ((afterActivityUnable.indexOf(i-1) >= 0 || stressArr[i-1] === -2 ) && stressArr[i] > 25) || (i > 1 && exercise.indexOf(i-1) >= 0 && stressArr[i] > 25))) {
+	// 			continuousNum++;
+	// 			exercise.push(i);
+	// 		} else {
+	// 			continuousNum = 0;
+	// 		}
+	// 	}
+	// 	console.log('exercise', exercise)
+	// 	setAfterExerciseIndex(exercise)
+
+	// 	const eat = []; 
+	// 	for(let i = 0; i < stressArr.length; i++) {
+	// 		// @ts-ignore
+	// 		//可能是饮食导致压力升高的规则：不属于运动升高，时间范围在11:00-13:00,17：00-19:00，前一个元素的值为0-25，其后连续1,2,3个元素的值大于25，则后面这1或2或3个元素都标记为受饮食影响的值
+	// 		if(exercise.indexOf(i) >= 0 || stressArr[i] <= 25 || !isMaybeEat(i)) {
+	// 			continue;
+	// 		// 从放松->有压力
+	// 		// } else if((i > 0 && stressArr[i-1] >= 0 && stressArr[i-1] <= 25) || (i > 1 && eat.indexOf(i-1) >= 0) || (i > 2 && eat.indexOf(i-2) >= 0)) {
+	// 		// 有压力
+	// 	} else {
+	// 			eat.push(i);
+	// 		}                     
+	// 	}
+	// 	console.log('eat', eat)
+	// 	setEatIndex(eat);
+	// 	// setStressChartLoading(false);	
+	// }, [stressDetail, sleepData, dailyData])
+
+	
+	// setWakeUp15MinutesIndex
+	useEffect(()=> {
+		if(!sleepEndIndex) return;
+		if(sleepEndIndex === -1) {
+			setWakeUp15MinutesIndex([]);
+			return;
+		}
+		const stressValues = Object.values(stressDetail!.timeOffsetStressLevelValues);
+		let wakeUp15Minutes = [];	
+		for(let i = 0; i < 5; i++) {
+			// if(stressValues[sleepEndIndex + i] > 0) {
+			wakeUp15Minutes.push(sleepEndIndex + i);
+			// }
+		}
+		setWakeUp15MinutesIndex(wakeUp15Minutes);
+		console.log('wakeUp15Minutes', wakeUp15Minutes);
+	}, [sleepEndIndex])
+
+
+	// setAfterExerciseIndex
+	useEffect(()=> {
+		// if(!stressDetail) return;
+		if(!stressDetail || !sleepData || !dailyData) return;
+		const stressValues = Object.values(stressDetail!.timeOffsetStressLevelValues);
+		const afterActivityUnable = [];	//活动后的无法测量，最多连续5个
+		let continuousNum = 0;
+		for(let i = 0; i < stressValues.length; i++) {
+			if(continuousNum <= 4 && i >= 1 && (stressValues[i-1] === -2 || afterActivityUnable.indexOf(i-1) >= 0) && stressValues[i] === -1) {
+				continuousNum++;
 				afterActivityUnable.push(i);
+			} else {
+				continuousNum = 0;
 			}
 		}
 
 		const exercise = [];
-		let continuousNum = 0;
-		for(let i = 0; i < stressArr.length; i++) {
+		continuousNum = 0;
+		for(let i = 0; i < stressValues.length; i++) {
 			// @ts-ignore
-			//可能是运动导致压力升高的规则：一个元素值为-2,其后连续1,2,3,4,5个元素的值大于25，则后面这5个元素都标记为受运动影响的压力升高
+			//可能是运动导致压力升高的规则：一个元素值为-2,其后连续1,2,3,4,5个元素的值大于25，则后面这5个元素都标记为受运动影响的压力升高，允许这连续的五个值之间有一个-1
 			// console.log('continuousNum: ', continuousNum)
-			if(continuousNum <= 4 && (i > 0 && ((afterActivityUnable.indexOf(i-1) >= 0 || stressArr[i-1] === -2 ) && stressArr[i] > 25) || (i > 1 && exercise.indexOf(i-1) >= 0 && stressArr[i] > 25))) {
+			if(continuousNum <= 4 && ((i > 0 && (afterActivityUnable.indexOf(i-1) >= 0 || stressValues[i-1] === -2 )) 
+			|| (i > 1 && exercise.indexOf(i-1) >= 0)
+		  || (i > 2 && exercise.indexOf(i-2) >= 0 && stressValues[i-1] === -1))
+			 && stressValues[i] > 25) {
 				continuousNum++;
 				exercise.push(i);
+			} else if (i > 1 && exercise.indexOf(i-1) >= 0 && stressValues[i] === -1) {
+				continuousNum++;
 			} else {
 				continuousNum = 0;
 			}
 		}
 		console.log('exercise', exercise)
-		setExerciseIndex(exercise)
-
-		const eat = []; 
-		for(let i = 0; i < stressArr.length; i++) {
-			// @ts-ignore
-			//可能是饮食导致压力升高的规则：不属于运动升高，时间范围在11:00-13:00,17：00-19:00，前一个元素的值为0-25，其后连续1,2,3个元素的值大于25，则后面这1或2或3个元素都标记为受饮食影响的值
-			if(exercise.indexOf(i) >= 0 || stressArr[i] <= 25 || !isMaybeEat(i)) {
-				continue;
-			// 从放松->有压力
-			// } else if((i > 0 && stressArr[i-1] >= 0 && stressArr[i-1] <= 25) || (i > 1 && eat.indexOf(i-1) >= 0) || (i > 2 && eat.indexOf(i-2) >= 0)) {
-			// 有压力
-		} else {
-				eat.push(i);
-			}                     
-		}
-		console.log('eat', eat)
-		setEatIndex(eat);
-		// setStressChartLoading(false);	
+		setAfterExerciseIndex(exercise)
 	}, [stressDetail, sleepData, dailyData])
+
+	
+	
+	// setOverallDayStress 一整天压力情况
+	useEffect(()=> {	
+		if(!dailyData) return;
+		const stressQualifier = dailyData?.stressQualifier;
+		const steps = dailyData?.steps;	//步数
+		const stepsGoal = dailyData?.stepsGoal;	 //目标步数
+		const moderateIntensityDurationInSeconds = dailyData?.moderateIntensityDurationInSeconds; //中等强度活动秒数
+		const vigorousIntensityDurationInSeconds = dailyData?.vigorousIntensityDurationInSeconds;  //高强度活动秒数
+		const intensityDurationGoal = dailyData?.intensityDurationGoalInSeconds / 7; //一天的目标活动秒数
+		const intensityDuration = moderateIntensityDurationInSeconds + vigorousIntensityDurationInSeconds * 2;
+		if (stressQualifier === SLEEP_QUALIFIER.CALM || stressQualifier === SLEEP_QUALIFIER.CALM_AWAKE || stressQualifier === SLEEP_QUALIFIER.BALANCED) {
+			setOverallDayStress(OVERALL_DAY_STRESS.CALM_OR_BALANCED);
+		}	else if(stressQualifier === SLEEP_QUALIFIER.STRESSFUL || stressQualifier === SLEEP_QUALIFIER.STRESSFUL_AWAKE 
+			|| stressQualifier === SLEEP_QUALIFIER.VERY_STRESSFUL || stressQualifier === SLEEP_QUALIFIER.VERY_STRESSFUL_AWAKE) {
+
+			if (steps >= stepsGoal || intensityDuration >= intensityDurationGoal) {
+				console.log('--->VERY_STRESSFUL')
+				setOverallDayStress(OVERALL_DAY_STRESS.ENOUGH_EXERCISE_STRESSFUL);
+			} else {
+				console.log('--->VERY_STRESSFUL 111')
+				setOverallDayStress(OVERALL_DAY_STRESS.INADEQUATE_EXERCISE_STRESSFUL);
+			}
+		} else {
+			setOverallDayStress('');
+		}
+	}, [stressDetail, dailyData])
+
+
+	// setDigestionIndex 11:00-13:00，17:00-19:00之间压力值升高，从<=25变成>25，并且>25至少持续15分钟
+	useEffect(()=> {
+		if(!stressDetail) return;
+		const calendarDate = stressDetail.calendarDate;
+		const stressValues = Object.values(stressDetail!.timeOffsetStressLevelValues);
+		const stressKeys = Object.keys(stressDetail!.timeOffsetStressLevelValues);
+		let digestion = [];
+		for(let i = 0; i < stressValues.length; i++) {
+			const timestamp = stressDetail.startTimeInSeconds + parseInt(stressKeys[i]);
+			if(isMaybeMealtime(calendarDate, timestamp) &&  i >= 1 && stressValues[i-1] >= 1 && stressValues[i-1] <= 25 && stressValues[i] > 25) {
+				let isDigestion = true;
+				for(let j = 1; j < 5; j++) {
+					if ((i + j) > stressValues.length || (stressValues[i+j] >=1 && stressValues[i+j] <= 25) || stressValues[i+j] === -2) {
+						isDigestion = false;
+						break;
+					}
+				}
+				if (isDigestion) {
+					for(let j = 0; j < 5; j++) {
+						digestion.push(i + j);
+					}
+				}
+			}
+		}
+		setDigestionIndex(digestion);
+	}, [stressDetail])
+
+
+
+	// setWorkStressIndex 白天的工作压力，9:00-11:00, 13:00-17:00非运动引起的持续压力较高
+	useEffect(()=> {
+		if(!stressDetail) return;
+		const calendarDate = stressDetail.calendarDate;
+		const stressValues = Object.values(stressDetail!.timeOffsetStressLevelValues);
+		const stressKeys = Object.keys(stressDetail!.timeOffsetStressLevelValues);
+		let newWorkStressIndex: Array<number> = [];
+		let num = 0;
+		let startIndex = 1000000;
+		for(let i = 0; i < stressValues.length; i++) {
+			const timestamp = stressDetail.startTimeInSeconds + parseInt(stressKeys[i]);
+			if(isMaybeWorkTime(calendarDate, timestamp) && afterExerciseIndex?.indexOf(i)! < 0 && stressValues[i] > 25) {
+				if ((i === 0 || newWorkStressIndex.indexOf(i) < 0) && num === 0) {
+					startIndex = i;
+					num++;
+				} else {
+					num++;
+				}
+			} else {
+				if((i - startIndex) >= 5 && (i - startIndex) > newWorkStressIndex.length) {
+					for(let j = startIndex; j < i; j++) {
+						newWorkStressIndex.push(j);
+					}
+					startIndex = 1000000;
+					num = 0
+					}
+			}
+		}
+		console.log('newWorkStressIndex', newWorkStressIndex)
+		setWorkStressIndex(newWorkStressIndex);
+	}, [afterExerciseIndex])
+	
+
+
+	// // 睡眠期间的放松时间
+	// useEffect(()=> {
+	// 	if (!stressDetail || !sleepData) return;
+		
+	// 	const calendarDate = stressDetail.calendarDate;
+	// 	const stressValues = Object.values(stressDetail!.timeOffsetStressLevelValues);
+	// 	const stressKeys = Object.keys(stressDetail!.timeOffsetStressLevelValues);
+	// 	let relaxTimeDuringSleepIndex = [];
+	// 	for (let i = sleepStartIndex; i < sleepEndIndex!; i++) {
+	// 		if(stressValues[i] <= 25 && stressValues[i] > 0) {
+	// 			relaxTimeDuringSleepIndex.push(i);
+	// 		}
+	// 	}
+
+	// 	setRelaxTimeDuringSleepIndex();
+
+	// }, [stressDetail, sleepData])
 
 
 	useEffect(()=> {
+		let { wakeUp15MinutesIndex: prevWakeUp15MinutesIndex, afterExerciseIndex: prevAfterExerciseIndex } = ref.current
+		console.log('更新前：', prevWakeUp15MinutesIndex, prevAfterExerciseIndex)
+		console.log('更新后：', wakeUp15MinutesIndex, afterExerciseIndex)
 		console.log("----->test test")
-		if (isHasStressData) {
-			initStressPieChart()
-			initStressDetailChart()
-		}
-	}, [exerciseIndex, eatIndex, isHasStressData])
+		// if (isHasStressData && prevWakeUp15MinutesIndex !== wakeUp15MinutesIndex && prevAfterExerciseIndex !== afterExerciseIndex) {
+		setTimeout(()=>{
+			if (isHasStressData) {
+				initStressPieChart()
+				initStressDetailChart()
+			}
+		}, 1000)
+	}, [wakeUp15MinutesIndex, afterExerciseIndex, digestionIndex, isHasStressData, isRelaxLongerDuringSleep, workStressIndex])
 	
 
 	return (
@@ -918,9 +1223,12 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 									<div className="chat-bubble left slide-left">
 										<div className="message" style={{whiteSpace: "pre-line"}}>{message.text}
 										<br/>
-										<NavLink to="#" onClick={() => showStressDetailChart()}>查看今天的压力数据</NavLink>
+										
+										<a href="javascript:void(0)" onClick={() => showStressDetailChart()}>查看今天的压力数据</a>
+										{/* <NavLink to="#" onClick={() => showStressDetailChart()}>查看今天的压力数据</NavLink> */}
 										<br/>
-										<NavLink to="#" onClick={() => showSleepPie()}>查看今天的睡眠数据</NavLink>
+										{/* <NavLink to="#" onClick={() => showSleepPie()}>查看今天的睡眠数据</NavLink> */}
+										<a href="javascript:void(0)" onClick={() => showSleepPie()}>查看今天的睡眠数据</a>
 										</div>
 										<div className="message"> </div>
 										<div className="message-detail left">
@@ -936,8 +1244,8 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 												<div>
 													{/* {isHasStressDataMap.get(message.id) && <> */}
 													{isHasStressData && <>
-														<div id={"stressPie" + message.id} style={{ width: "650px", height: "150px" }}></div>
-														<div id={"stressDetailChart" + message.id} style={{width: "650px", height: "300px"}}></div>	
+														<div id={"stressPie" + message.id} style={{ width: "700px", height: "150px" }}></div>
+														<div id={"stressDetailChart" + message.id} style={{width: "700px", height: "300px"}}></div>	
 													</>}
 													{/* {!isHasStressDataMap.get(message.id) && */}
 													{!isHasStressData &&
@@ -949,7 +1257,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 												</div>
 												<div className="preNext">
 													<NavLink className="nav" to="#" onClick={() => showStressPre()}>前一天 </NavLink><br />
-													<NavLink className="nav"  to="#" onClick={() => showStressNext()}>后一天</NavLink><br />
+													<NavLink className="nav" to="#" onClick={() => showStressNext()}>后一天</NavLink><br />
 												</div>
 												<div className="message"> </div>
 													<div className="message-detail left">
@@ -959,8 +1267,6 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 										</Spin>
 									</div>
 								}
-							
-							
 
 								{ message.text === "sleepChart" && 
 									<div className="chat-bubble left slide-left">

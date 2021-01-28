@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-11-26 20:35:55
- * @LastEditTime: 2021-01-07 14:53:19
+ * @LastEditTime: 2021-01-27 12:36:26
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \my-chatbot-app\src\service\deviceService.ts
@@ -36,4 +36,49 @@ export const getHealthDataByDate = async(userId: number, domain: string, date: s
 	const data = await Fetch.post( GarminApiUrl + 'data/byDate', requestData)
 	console.log('---->getHealthDataByDate', data)
 	return data
+}
+
+export const getIsChronicStress = async(userId: number, calendarDate: string) => {
+	const requestData = {
+		userId,
+		calendarDate
+	}
+	const data = await Fetch.post( GarminApiUrl + 'data/isChronicStress', requestData)
+	return data;
+}
+
+export const getIsExerciseEnough = async(userId: number, calendarDate: string) => {
+	const requestData = {
+		userId,
+		calendarDate
+	}
+	const data = await Fetch.post( GarminApiUrl + 'data/isExerciseEnough', requestData)
+	return data;
+}
+
+export const getIsShorterSleepTimeAndHigherWorkStress = async(userId: number, calendarDate: string) => {
+	const requestData = {
+		userId,
+		calendarDate
+	}
+	const data = await Fetch.post( GarminApiUrl + 'data/isShorterSleepTimeAndHigherWorkStress', requestData)
+	return data;
+}
+
+export const getIsRelaxLongerDuringSleep = async(userId: number, calendarDate: string) => {
+	const requestData = {
+		userId,
+		calendarDate
+	}
+	const data = await Fetch.post( GarminApiUrl + 'data/isRelaxLongerDuringSleep', requestData)
+	return data;
+}
+
+export const getIsHighIntensityExerciseEffectSleep = async(userId: number, calendarDate: string) => {
+	const requestData = {
+		userId,
+		calendarDate
+	}
+	const data = await Fetch.post( GarminApiUrl + 'data/isHighIntensityExerciseEffectSleep', requestData)
+	return data;
 }

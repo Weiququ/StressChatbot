@@ -1,7 +1,17 @@
 /*
  * @Author: your name
+ * @Date: 2020-12-24 13:55:51
+ * @LastEditTime: 2021-01-23 05:06:07
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \StressChatbot\src\utils\handleDate.ts
+ */
+import { FORMATE_TIME } from "./constants";
+
+/*
+ * @Author: your name
  * @Date: 2020-10-26 01:25:00
- * @LastEditTime: 2021-01-22 14:13:14
+ * @LastEditTime: 2021-01-22 20:04:59
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \my-chatbot-app\src\utils\handleDate.ts
@@ -38,7 +48,7 @@ const secondToTime = (secondString: string) => {
 	const minute1 = Math.round(second % 3600 / 60);
 	const hour2 = Math.floor((second + 180) / 3600);
 	const minute2 = Math.round((second + 180) % 3600 / 60);
-	return hour1 + ':' + minute1.toString().padStart(2, '0') + '-' + hour2 + ':' + minute2.toString().padStart(2, '0');
+	return add0(hour1) + ':' + add0(minute1) + '-' + add0(hour2) + ':' + add0(minute2);
 }
 
 //'2020-12-23' '180' to '2020-12-23 00:03'
@@ -63,11 +73,33 @@ const dateToString = (date: Date, format: String) => {
 	return str;
 }
  
-// 时间字符串转化为时间戳
+// 字符串转化为时间戳
 const strToTimestamp = (dateStr: string) => {
 	const date = new Date(dateStr);
 	const timestamp = date.getTime() / 1000;
 	return timestamp;
+}
+
+// 时间戳转字符串
+const timestampToStr = (timestamp: number, format: any) => {
+	console.log('timestamp', timestamp)
+	const time = new Date(timestamp * 1000)    //先将时间戳转为Date对象，然后才能使用Date的方法
+	const year = time.getFullYear(),
+			month = add0(time.getMonth() + 1) ,  //月份是从0开始的
+			day = add0(time.getDate()),
+			hour = add0(time.getHours()),
+			minute = add0(time.getMinutes()),
+			second = add0(time.getSeconds())
+	console.log('--->date', year, ' ', month, ' ', day, ' ', hour, ' ', minute, ' ', second)
+	if (format === FORMATE_TIME.HOUR_MINUTE) {
+		return hour + ":" + minute;
+	} else if (format === FORMATE_TIME.HOUR_MINUTE_SECOND) {
+		return hour + ":" + minute + ":" + second;
+	} else if (format === FORMATE_TIME.YEAR_MONTH_DAY) {
+		return year + "-" + month + "-" + day;
+	} else if (format === FORMATE_TIME.YEAR_MONTH_DAY_HOUR_MINUTE_SECOND) {
+		return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+	}
 }
 
 const getPrevDate = (dateStr: string) => {
@@ -88,5 +120,8 @@ const getNextDate = (dateStr: string) => {
 	return dateToString(beforeDate, "yyyy-MM-dd");
 }
 
+const add0 = (number: Number) => {
+	return number.toString().padStart(2, '0')
+}
 
-export { formatDate, secondToHourMinute, secondToTime, dateToString, strToTimestamp, getPrevDate, getNextDate}
+export { formatDate, secondToHourMinute, secondToTime, dateToString, strToTimestamp, getPrevDate, getNextDate, timestampToStr}
