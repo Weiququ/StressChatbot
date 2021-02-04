@@ -1,14 +1,14 @@
 /*
  * @Author: your name
  * @Date: 2020-11-22 18:35:52
- * @LastEditTime: 2021-01-28 11:41:27
+ * @LastEditTime: 2021-02-04 12:28:41
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \my-chatbot-app\src\util\constant.ts
  */
 // export const ApiUrl = 'http://stresschatbot.cn:8000'
-export const ApiUrl = 'https://stresschatbot.cn/api' 
 // export const ApiUrl = 'http://127.0.0.1:5000';   
+export const ApiUrl = 'https://stresschatbot.cn/api' 
 export const RasaApiUrl = 'https://stresschatbot.cn/rasa/'
 // export const RasaApiUrl = 'http://stresschatbot.cn:5005/webhooks/rest/webhook'
 // export const RasaApiUrl = 'http://localhost:5005/webhooks/rest/webhook'
@@ -40,7 +40,11 @@ export const SLEEP_QUALITY = {
 }
 
 export const SLEEP_KNOWLEDGE = {
-    
+    DEEP: '当您进入深度睡眠时，眼睛和肌肉运动会完全停止。心率和呼吸会减慢。此时很难被叫醒，即使被叫醒也是迷糊不清的状态。',
+    LIGHT: '浅睡眠是睡眠的第一个阶段。眼球运动和肌肉活动在浅睡眠减慢。这时您的身体已准备好进入深度睡眠。',
+    REM: '快速眼动（REM，rapid eye movement）睡眠视为睡眠周期的最终阶段。通常人的梦都发生在快速眼动睡眠阶段。REM睡眠阶段倾向于开始时比较短，整个晚上会变长。',
+    AWAKE: '一般而言，连续一整晚的睡眠对身体最好，即醒来时间非常短甚至没有。',
+    UNMEASURABLE: '无法测量。为避免接收到不可测量的睡眠数据，请在晚上睡觉时佩戴设备。'
 }
 
 export const REASONS_FOR_POOR_SLEEP = {
@@ -61,7 +65,7 @@ export const OVERALL_DAY_STRESS = {
     ENOUGH_EXERCISE_STRESSFUL: '您今天大多数时间都处于压力之中，运动量较大，休息时间很少。可以多腾出时间休息，进行冥想、深呼吸等放松训练，有利于减轻压力和焦虑感，使身心得到放松。'
 }
 
-export const SLEEP_QUALIFIER = {
+export const STRESS_QUALIFIER = {
     UNKNOWN: 'unknown',
     CALM: 'calm',
     BALANCED: 'balanced',
@@ -84,3 +88,63 @@ export const RELAX_TIME_DURING_SLEEP = "您昨晚睡眠期间的放松时间较�
 export const IS_HIGH_INTENSITY_EXERCISE_EFFECT_SLEEP = "您昨天的高强度运动有增加。高强度的运动会导致睡眠期间的恢复能力下降，心率增加，hrv降低，从而压力值升高。这并不是要您停止运动，而是要意识到高强度的运动会给身体带来多大的负担，要更好地保持充足的睡眠和休息，进行简单的恢复、放松活动等。"
 
 export const WORK_STRESS = "您昨晚的睡眠时长比前一天短，白天压力均值比前一天高。一项研究表明，睡眠时长与工作压力源呈负相关";
+
+export const ACTIVITY_TYPE = {
+    WALKING: 'walking',
+    RUNNING: 'running',
+    CYCLING: 'cycling',
+    FITNESS_EQUIPMENT: 'fitness_equipment'
+}
+
+export const ACTIVITY_ICON = {
+    WALKING: '/assets/icon/walk.png',
+    RUNNING: '/assets/icon/running.png',
+    CYCLING: '/assets/icon/cycling.png',
+    FITNESS_EQUIPMENT: '/assets/icon/elliptical.png'
+}
+
+export const STRESS_VALUE = {
+    ACTIVITY: -2,
+    UNMEASURABLE: -1
+}
+
+export const SCENE_NUMBER = {
+    GOOD_SLEEP: 1,
+    BAD_SLEEP: 2,
+    GENERAL_SLEEP: 3,
+    SLEEP_SHORTER_DIURNAL_STRESS_HIGHER: 4,
+    SLEEP_LONGER_DIURNAL_STRESS_LOWER: 5,
+    MORE_RELAX_TIME_DURING_SLEEP: 6,
+    IS_HIGH_INTENSITY_EXERCISE_EFFECT_SLEEP: 7,
+    AFTER_EXERCISE: 8,
+    INADEQUATE_EXERCISE_STRESSFUL: 9,
+    ENOUGH_EXERCISE_STRESSFUL: 10,
+    CALM_OR_BALANCED: 11,
+    A_WEEK_EXERCISE_IS_NOT_ENOUGH: 12,
+    DIGESTION: 13,
+    CHRONIC_STRESS: 14
+}
+
+
+export const SCENE_KNOWLEDGE = {
+    GOOD_SLEEP: '您昨晚的睡眠很棒！研究表明，优质的睡眠有助于帮助人们从日常和长期压力中恢复，并为整体健康做出积极贡献。',
+    BAD_SLEEP: '您昨晚的睡眠不太好，[原因]。睡眠质量差会减弱人的生理活动及其平衡能力, 从而让人难以应对新压力。睡眠不足或睡眠剥夺也可能对机体构成压力威胁, 同时睡眠不好会通过生理变化给人施加压力。',
+    GENERAL_SLEEP: 'HRV具有昼夜节律。在正常情况下，应该在放松活动中自然增加，尤其是在副交感神经活动增加的睡眠期间，而在交感神经活动增加的清醒时间减少。',
+    SLEEP_SHORTER_DIURNAL_STRESS_HIGHER: "您昨晚的睡眠时长比前一天短，白天压力均值比前一天高。一项研究表明，睡眠时长与工作压力源呈负相关",
+    SLEEP_LONGER_DIURNAL_STRESS_LOWER: "您昨晚的睡眠时长比前一天长，白天压力均值比前一天低。一项研究表明，睡眠时长与工作压力源呈负相关", 
+    MORE_RELAX_TIME_DURING_SLEEP: "您昨晚睡眠期间的放松时间较前一晚有变长。研究表明，睡眠期间的放松时间越长，第二天觉察到的工作压力源就越少",
+    IS_HIGH_INTENSITY_EXERCISE_EFFECT_SLEEP: "您昨天的高强度运动有增加。高强度的运动会导致睡眠期间的恢复能力下降，心率增加，hrv降低，从而压力值升高。这并不是要您停止运动，而是要意识到高强度的运动会给身体带来多大的负担，要更好地保持充足的睡眠和休息，进行简单的恢复、放松活动等。",
+    AFTER_EXERCISE: '运动会使交感神经系统的活动增加，导致HRV（Heart rate variablity，心率变异性）降低，而压力值是根据HRV进行计算的，运动强度越高，运动后的即时HRV越低，压力值越高。',
+    INADEQUATE_EXERCISE_STRESSFUL: '您今天大多数时间都处于压力之中，并且运动量较少。研究表明适当的体育锻炼，特别是有氧运动有助于帮助人们从日常和长期压力中恢复，并为整体健康做出积极贡献。',
+    ENOUGH_EXERCISE_STRESSFUL: '您今天大多数时间都处于压力之中，运动量较大，休息时间很少。可以多腾出时间休息，进行冥想、深呼吸等放松训练，有利于减轻压力和焦虑感，使身心得到放松。',
+    CALM_OR_BALANCED: '您今天整体的压力不高。大多数人把压力和消极情绪联系在一起，比如恐惧和焦虑，但压力也可以是积极的、有益的。积极压力是人们对一种具有挑战性但不具威胁性的情况的评估，并有信心解决它。积极的压力可以提高我们做事的动力，让我们集中注意力，表现得更好。',
+    A_WEEK_EXERCISE_IS_NOT_ENOUGH: "您上周的中高强度运动量较小，世卫组织建议每周进行150分钟的中高等强度活动。运动是对抗压力的一个关键、重要的方法。运动不仅可以促进整体健康，还可以帮助您控制情绪压力和紧张，帮助放松并改善睡眠。一方面，运动可以让您在情感上暂时摆脱有压力的环境或情景。另一方面，健康的体魄也能提高你应对压力的能力。",
+    DIGESTION: "研究表明，消化食物会引起生理压力，减少副交感神经的活动，使HRV值降低，压力值升高。",
+    CHRONIC_STRESS: "注意到您最近长期处于高压力的状态。大量的科学文献表明，适当的体育活动，宁静的睡眠能帮助日常和长期压力的恢复，以及健康的饮食和适量饮酒对健康都有积极的贡献。"
+}
+
+export const RANDOM_KNOWLEDGE = [
+    "研究发现健康的饮食与较高的​​HRV有关，例如，地中海饮食，鱼类，多种维生素等。而咖啡、可乐、酒精以及不健康的饮食（例如，高脂肪或反式脂肪）会减少迷走神经活动，增强交感神经活动，导致HRV降低。",
+    "压力值根据HRV计算。HRV（心率变异性）是指逐次心跳周期差异的变化情况。HRV能反映自主神经系统（ANS）的状态，自主神经系统由交感神经和副交感神经系统组成。压力、运动等会增加交感神经系统的活动，这时HRV会降低；而副交感神经系统活动主要在放松和恢复时期，这时HRV值会升高。",
+    "Garmin手表或手环基于心率变异性（HRV）计算用户的压力分数。心率变异性（HRV）是连续心跳之间的时间间隔变化的生理现象。个体之间的HRV水平差异很大，但总的来说，高HRV被认为是身体健康的标志，而低HRV则与一系列负面健康结果和压力有关。"
+]

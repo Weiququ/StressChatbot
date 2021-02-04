@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-12-24 13:55:51
- * @LastEditTime: 2021-01-23 05:06:07
+ * @LastEditTime: 2021-02-04 02:10:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \StressChatbot\src\utils\handleDate.ts
@@ -33,7 +33,6 @@ const formatDate = (date: Date) => {
 const secondToHourMinute = (second: number) => {
 	const hour = Math.floor(second / 3600);
 	const minute = Math.round(second % 3600 / 60);
-	console.log(3722 % 3600 / 60)
 	let res = '';
 	if (hour !== 0) {
 			res += hour + '小时';
@@ -72,7 +71,7 @@ const dateToString = (date: Date, format: String) => {
 	}
 	return str;
 }
- 
+  
 // 字符串转化为时间戳
 const strToTimestamp = (dateStr: string) => {
 	const date = new Date(dateStr);
@@ -82,7 +81,6 @@ const strToTimestamp = (dateStr: string) => {
 
 // 时间戳转字符串
 const timestampToStr = (timestamp: number, format: any) => {
-	console.log('timestamp', timestamp)
 	const time = new Date(timestamp * 1000)    //先将时间戳转为Date对象，然后才能使用Date的方法
 	const year = time.getFullYear(),
 			month = add0(time.getMonth() + 1) ,  //月份是从0开始的
@@ -90,7 +88,6 @@ const timestampToStr = (timestamp: number, format: any) => {
 			hour = add0(time.getHours()),
 			minute = add0(time.getMinutes()),
 			second = add0(time.getSeconds())
-	console.log('--->date', year, ' ', month, ' ', day, ' ', hour, ' ', minute, ' ', second)
 	if (format === FORMATE_TIME.HOUR_MINUTE) {
 		return hour + ":" + minute;
 	} else if (format === FORMATE_TIME.HOUR_MINUTE_SECOND) {
@@ -104,14 +101,10 @@ const timestampToStr = (timestamp: number, format: any) => {
 
 const getPrevDate = (dateStr: string) => {
 	const timestamp = strToTimestamp(dateStr); //获取当前日期时间戳
-	console.log("timestamp", timestamp)
   const before = timestamp - 60*60*24;//当前日期时间戳减去一天时间戳
 	const beforeDate = new Date(before*1000);//将时间戳转化为Date对象
-	console.log("timestamp", timestamp, before, beforeDate)
-	
 	return dateToString(beforeDate, "yyyy-MM-dd");
 }
-
 
 const getNextDate = (dateStr: string) => {
 	const timestamp = strToTimestamp(dateStr); //获取当前日期时间戳

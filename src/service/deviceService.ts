@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-11-26 20:35:55
- * @LastEditTime: 2021-01-27 12:36:26
+ * @LastEditTime: 2021-02-03 18:39:04
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \my-chatbot-app\src\service\deviceService.ts
@@ -80,5 +80,42 @@ export const getIsHighIntensityExerciseEffectSleep = async(userId: number, calen
 		calendarDate
 	}
 	const data = await Fetch.post( GarminApiUrl + 'data/isHighIntensityExerciseEffectSleep', requestData)
+	return data;
+}
+
+export const getMoveIQs = async(userId: number, calendarDate: string) => {
+	const requestData = {
+		userId,
+		calendarDate
+	}
+	const data = await Fetch.post( GarminApiUrl + 'data/moveIQ', requestData)
+	return data;
+}
+
+export const getActivities = async(userId: number, calendarDate: string) => {
+	const requestData = {
+		userId,
+		calendarDate
+	}
+	const data = await Fetch.post( GarminApiUrl + 'data/activities', requestData)
+	return data;
+}
+
+export const getMetGreaterThan3Epochs = async(userId: number, calendarDate: string) => {
+	const requestData = {
+		userId,
+		calendarDate
+	}
+	const data = await Fetch.post( GarminApiUrl + 'data/metGreaterThan3Epochs', requestData)
+	return data;
+}
+
+
+export const getOtherSleepScene = async(userId: number, calendarDate: string) => {
+	const requestData = {
+		userId,
+		calendarDate
+	}
+	const data = await Fetch.post( GarminApiUrl + 'data/sleepOtherScene', requestData)
 	return data;
 }
