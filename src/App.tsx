@@ -7,6 +7,7 @@ import Chat from './pages/Chat'
 import Signup from './pages/Signup'
 import Menu from './components/Menu';
 import Login from './pages/Login';
+import SingleDay from './pages/SingleDay';
 import MyHealthData from './pages/MyHealthData';
 import StressDetail from './pages/StressDetail';
 import RecordActivity from './pages/RecordActivity';
@@ -35,7 +36,7 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-
+import './theme/index.css'
 
 interface StateProps {
 }
@@ -69,6 +70,12 @@ const IonicApp: React.FC<IonicAppProps> = ({ loadUserData, setIsLoggedIn, setUse
     // eslint-disable-next-line
   }, []);
 
+  const headItem = document.head;
+  let oMeta = document.createElement('meta');
+  oMeta.setAttribute('name','viewport');
+  oMeta.setAttribute('content','width=device-width, initial-scale=1');
+  headItem.appendChild(oMeta)
+  
   return (
     <IonApp>
       <IonReactRouter>
@@ -96,6 +103,9 @@ const IonicApp: React.FC<IonicAppProps> = ({ loadUserData, setIsLoggedIn, setUse
             <Route exact path="/myHealthData" component={MyHealthData} />
             <Route exact path="/stressDetail" component={StressDetail} />
             <Route exact path="/recordActivity" component={RecordActivity} />
+            <Route exact path="/singleDay" component={SingleDay} />
+            {/* <Route exact path="/multiDay" component={MultiDay} />
+            <Route exact path="/annotationSettings" component={AnnotationSettings} /> */}
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>

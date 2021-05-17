@@ -13,11 +13,14 @@ const routes = {
     { title: '绑定Garmin设备', path: '/bindDevice', icon: watch }
   ],
   boundDevicePages: [
-    { title: '我的健康数据', path: '/myHealthData', icon: analytics },
+    // { title: '我的健康数据', path: '/myHealthData', icon: analytics },
     // { title: '解绑Garmin设备', path: '/unbindDevice', icon: watch }
   ],
   loggedInPages: [
     // { title: '个人资料', path: '/account', icon: person },
+    { title: '单日数据', path: '/SingleDay', icon: person },
+    { title: '多日数据', path: '/MultiDay', icon: person },
+    { title: '标注设置', path: '/AnnotationSettings', icon: person },
     { title: '退出', path: '/logout', icon: logOut }
   ],
   loggedOutPages: [
@@ -79,7 +82,9 @@ const Menu: React.FC<MenuProps> = ({ isAuthenticated, isBoundGarmin }) => {
 
 export default connect<{}, StateProps, {}>({
   mapStateToProps: (state) => ({
-    isAuthenticated: state.user.isLoggedin,
+    // TODO:isAuthenticated记得改回去
+    // isAuthenticated: state.user.isLoggedin,
+    isAuthenticated: true,
     isBoundGarmin: state.user.isBoundGarmin
   }),
   component: withRouter(Menu)

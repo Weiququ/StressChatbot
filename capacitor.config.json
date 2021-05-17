@@ -1,6 +1,6 @@
 {
-  "appId": "io.ionic.starter",
-  "appName": "my-chatbot-app",
+  "appId": "com.wsh.stress",
+  "appName": "stressChatbot",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "build",

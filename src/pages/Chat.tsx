@@ -28,7 +28,9 @@ import {
 	ACTIVITY_TYPE,
 	ACTIVITY_ICON,
 	SCENE_KNOWLEDGE,
-	RANDOM_KNOWLEDGE
+	RANDOM_KNOWLEDGE,
+	NEED_EXPLAIN_ITEM,
+	NEED_EXPLAIN_ITEM_CONTENT
  } from '../utils/constants'
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import './css/Chat.css';
@@ -59,6 +61,7 @@ import 'echarts/lib/component/visualMap';
 import 'echarts/lib/component/legend';
 import 'echarts/lib/coord/cartesian/Grid';
 import 'echarts/lib/coord/cartesian/Axis2D';
+import 'echarts/lib/component/dataZoom'
 import { RouteComponentProps } from 'react-router';
 import StressDetail from './StressDetail';
 
@@ -87,7 +90,9 @@ interface SleepQuality {
 
 interface ChatProps extends MyProps, RouteComponentProps { }
 
+
 const Chat: React.FC<ChatProps> = ({ user, history }) => {
+
 	console.log('chat user', user);
 	const messagesRef = useRef(null);
 
@@ -98,7 +103,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		username: chatbot.username,
 		avatar: chatbot.avatar,
 		// text: ["您好，关于压力和睡眠的问题都可以问我哦~", "记录日常活动"]	
-		text: ["您好，关于压力的定义、症状、常见的产生原因、类型、缓解方法、检测机制都可以问我哦~"]	
+		text: ["您好，关于压力的定义、症状、产生原因、类型、缓解方法、检测原理、可能导致的疾病、适宜吃和不适宜吃的食物等都相关问题都可以问我哦~"]	
 	}
 
 	const [userMessageText, setUserMessageText] = useState<string>();
@@ -130,15 +135,27 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 	const [sleepDate, setSleepDate] = useState(dateToString(new Date(), "yyyy-MM-dd"));
 	const [activities, setActivities] = useState<Array<any>>();
 	const [moveIQs, setMoveIQs] = useState<Array<any>>();
-	// const [epochs, setEpochs] = useState<Array<any>>();
-	// const [indexWithScene, setIndexWithScene] = useState<Array<any>>(); //带有场景的index数组，
 
 	const ref = useRef({ wakeUp15MinutesIndex, afterExerciseIndex});
-	
+
+	const handleNeedExplainTips = (e: any) => {
+		const needExplainTips = e.target?.innerHTML
+		let responseMessage = {
+			id: messageNum + 1,
+			date: formatDate(new Date()),
+			userId: chatbot.id,
+			username: chatbot.username,
+			avatar: chatbot.avatar,
+			text: (NEED_EXPLAIN_ITEM_CONTENT as any)[needExplainTips],
+			items: null
+		}
+		setMessages(messages => [...messages, responseMessage])
+		setMessageNum(messageNum => messageNum + 1)
+		scrollToBottom()
+	}
 
 	//入睡时间
 	let sleepStartTime = useMemo(() => {
-		console.log('--->sleepData, stressDetail', sleepData, stressDetail)
 		if (!sleepData || !stressDetail) return null;
 		const calendarDate = stressDetail?.calendarDate;
 		const todayTimeStamp = strToTimestamp(calendarDate + ' 00:00:00');
@@ -149,13 +166,11 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 
 	//入睡时间在压力图中对应的下标
 	let sleepStartIndex = useMemo(() => {
-		console.log('--->sleepStartTime', sleepStartTime)
 		if (!sleepStartTime) return -1;
 		const calendarDate = stressDetail?.calendarDate;
 		const todayTimeStamp = strToTimestamp(calendarDate + ' 00:00:00');
 		const stressKeys = Object.keys(stressDetail!.timeOffsetStressLevelValues);
 		const sleepStartIndex = Math.floor((sleepStartTime - todayTimeStamp - parseInt(stressKeys[0])) / 180);
-		console.log('--->sleepStartIndex 1', sleepStartIndex)
 		return sleepStartIndex
 	}, [sleepStartTime])
 
@@ -232,7 +247,6 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 				noLabledIndex.push(i);
 			}
 		}
-		console.log('--->noLabledIndex', noLabledIndex);
 		let num = 0;
 		let temp = [];
 		let startIndex = -1, endIndex = -1;
@@ -260,11 +274,22 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 				randomKnowledgeList.push(temp[num])
 			}
 		}
-		console.log('--->randomKnowledgeList', randomKnowledgeList)
 		return randomKnowledgeList;
 	}, [stressDetail, wakeUp15MinutesIndex, afterExerciseIndex, digestionIndex, workStressIndex])
 
 	// const [stressDataArray, setStressDateArray] = useState<Array<any>>();
+
+
+	const getRandomArrayElements = (arr: any, count: any) => {
+		var shuffled = arr.slice(0), i = arr.length, min = i - count, temp, index;
+		while (i-- > min) {
+				index = Math.floor((i + 1) * Math.random());
+				temp = shuffled[index];
+				shuffled[index] = shuffled[i];
+				shuffled[i] = temp;
+		}
+		return shuffled.slice(min);
+	}
 
 	const sendMessage  = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -274,7 +299,8 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 			userId: user.userId,
 			username: user.username,
 			avatar: user.avatar,
-			text: userMessageText || ''
+			text: userMessageText || '',
+			items: null
 		}
 		console.log('--->sendMessage', userMessage)
 		// let newMessage = [...messages, userMessage];
@@ -289,7 +315,8 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 			userId: chatbot.id,
 			username: chatbot.username,
 			avatar: chatbot.avatar,
-			text: '对不起，这个问题我还不会哦，你可以问我其他问题'
+			text: '这个问题我还不会哦，你可以问我其他问题',
+			items: null
 		}
 		scrollToBottom()
 		// getSleepAnswer(question || '').then(data => {
@@ -301,13 +328,86 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		// 	scrollToBottom()
 		// })
 
+		// const data = {
+		// 	recipient_id: '',
+		// 	custom: {
+		// 		reliefs: [
+		// 			{ 
+		// 				'description': "冥想能促进人体放松，使人感觉平静。",
+		// 				'method': "您可以舒服地就地坐着或者躺着，闭上眼睛集中注意力，以使思想平静，进而达到身体放松的一种练习。每天进行1或2次，每次10~20分钟。",
+		// 				'name': "冥想"
+		// 			},
+		// 			{
+		// 				'description': "研究表明，过量的咖啡因和酒精都会增加人的生理压力。",
+		// 				'method': " ",
+		// 				'name': "尽量减少咖啡因和酒精的使用"
+		// 			},
+		// 			{
+		// 				'description': "瑜伽姿势运用古老而易于掌握的技巧，改善人们生理、心理、情感和精神方面的能力，是一种达到身体、心灵与精神和谐统一的运动方式，包括调身的体位法、调息的呼吸法、调心的冥想法等，以达至身心的合一。",
+		// 				'method': "练习瑜伽时要求注意力集中在伸展、姿势、冥想以及呼吸上。",
+		// 				'name': "瑜伽"
+		// 			}
+		// 		]
+		// 	}
+		// }
+		// const data = {
+		// 	recipient_id: '',
+		// 	custom: {
+		// 		doEatfoods: [
+		// 			{ 
+		// 				'description': "一种睡前减压饮品是温牛奶。研究表明，钙可以缓解与经前综合症相关的焦虑和情绪波动。营养学家通常推荐脱脂或低脂牛奶。",
+		// 				'name': "菠菜",
+		// 				'image': 'https://images.medicinenet.com/images/slideshow/stress_management_s14_glass_of_milk.jpg'
+		// 			},
+		// 			{
+		// 				'description': "有许多草药补充剂声称可以对抗压力。其中研究得最好的是圣约翰草，它对轻度至中度抑郁症",
+		// 				'name': "草药补充品",
+		// 				'image': 'https://images.medicinenet.com/images/slideshow/stress_management_s15_herbal_remedies.jpg'
+		// 			},
+		// 			{
+		// 				'description': "在鲑鱼和金枪鱼等鱼类中发现的Omega-3脂肪酸可以防止压力激素激增，并有助于预防心脏病，抑郁症",
+		// 				'name': "多脂鱼",
+		// 				'image': 'https://images.medicinenet.com/images/slideshow/stress_management_s15_herbal_remedies.jpg'
+		// 			}
+		// 		],
+		// 		notEatfoods: null,
+		// 		reliefs: null,
+		// 	},
+
+		// }
+
 		getRasaAnswer(question || '').then(data => {
 			console.log(data)
-			const {recipient_id, text} = data
-			
-			if (data && data.text) {
-				responseMessage.text = text
+			if (data && data?.text) {
+				responseMessage.text = data.text
+			} else if (data && data.custom) {
+				if (data.custom.reliefs) {
+					responseMessage.text = '缓解压力的方法有：'
+					// @ts-ignore
+					responseMessage.items =  data.custom.reliefs
+				} else if (data.custom.doEatfoods) {
+					if (data.custom.feature) {
+						responseMessage.text = data.custom.feature + '\n'
+					}
+					responseMessage.text = '建议吃：'
+					// @ts-ignore
+					const doEatfoods = data.custom.doEatfoods 
+					const num = doEatfoods.length >= 30 ? 30 : doEatfoods.length
+					responseMessage.items = getRandomArrayElements(doEatfoods, num)
+				} else if (data.custom.notEatfoods) {
+					if (data.custom.feature) {
+						responseMessage.text = data.custom.feature + '\n'
+					}
+					responseMessage.text = '不建议吃：'
+					const notEatfoods = data.custom.notEatfoods 
+					const num = notEatfoods.length >= 30 ? 30 : notEatfoods.length
+					responseMessage.items =  getRandomArrayElements(notEatfoods, num)
+				}
 			}
+			setMessages(messages => [...messages, responseMessage])
+			setMessageNum(messageNum => messageNum + 1)
+			scrollToBottom()
+		}).catch(() => {
 			setMessages(messages => [...messages, responseMessage])
 			setMessageNum(messageNum => messageNum + 1)
 			scrollToBottom()
@@ -352,7 +452,6 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 
 	const initStressPie = () => {
 		if(JSON.stringify(dailyData) === '{}' || !dailyData) return
-		console.log('---->dailyData', dailyData)
 		const stressData = [];
 		// @ts-ignore
 		stressData.push({'value': dailyData.restStressDurationInSeconds,  name: '放松'});
@@ -370,12 +469,29 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 			target.set(item.name, item.value)
 		}))
 
-		console.log('--->stressPieId', messageNum)
-		// const stressPieId = "stressPie" + messageNum;
-		const stressPieId = "stressPie";
-		
-		// @ts-ignore
-		const stressPie = echarts.init(document.getElementById(stressPieId))
+		const allDuration = dailyData.restStressDurationInSeconds + dailyData.lowStressDurationInSeconds + dailyData.mediumStressDurationInSeconds + dailyData.highStressDurationInSeconds;
+		const proportionMap = new Map();
+		stressData.forEach(item=>{
+			proportionMap.set(item.name, Math.floor(item.value / allDuration * 100) + '%');
+		})
+
+		const stressPieId = "stressPie" + messageNum;
+		let stressPieDiv = document.getElementById(stressPieId);
+		let stressPie;
+		if (stressPieDiv) {
+			stressPie = echarts.init(stressPieDiv);
+		} else {
+			const stressPieList = document.getElementsByClassName('stressPie');
+			if (stressPieList.length > 0) {
+				 const lastStressPie = stressPieList[stressPieList.length-1] as HTMLElement;
+				 stressPie = echarts.init(lastStressPie);
+			} else {
+				return;
+			}		
+		}
+
+		// if (!stressPieDiv) return
+		// const stressPie = echarts.init(stressPieDiv)
 
 		stressPie.setOption({
 			title: {
@@ -405,12 +521,13 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 			// @ts-ignore
 			legend: {
 				orient: 'vertical',
-				right: 0,
+				right: 6,
 				bottom: 0,
 				data: ['放松', '低', '中', '高'],
 				formatter: (name) => {
 					let lists = [];
-					lists.push(name + ': ' + secondToHourMinute(target.get(name)))
+					// let value = target.get(name);
+					lists.push(name + ': ' + secondToHourMinute(target.get(name)) + '  ' + proportionMap.get(name));
 					return lists
 				},
 				textStyle: {
@@ -422,12 +539,12 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 					name: '压力',
 					type: 'pie',
 					radius: ['60%', '75%'],	 // 设置环形饼状图， 第一个百分数设置内圈大小，第二个百分数设置外圈大小
-					center: ['50%', '60%'],	 // 设置饼状图位置，第一个百分数调水平位置，第二个百分数调垂直位置
+					center: ['24%', '60%'],	 // 设置饼状图位置，第一个百分数调水平位置，第二个百分数调垂直位置
 					label: {
 						show: true,
 						position: 'center',
 						formatter: '均值'+ avgStress,
-						fontSize: 13
+						fontSize: 12
 					},
 					data: stressData
 				}
@@ -455,6 +572,32 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		}
 	}
 
+	const getKnowledgeTips = (knowledge: any) => {
+		let knowledgeTips = knowledge;
+		for (let item of NEED_EXPLAIN_ITEM) {
+			if (knowledge.indexOf(item) >= 0) {
+				knowledgeTips = ''
+				const temps = knowledge.split(item) 
+				for(let i = 0; i < temps.length; i++) {
+					if(i === 1) {
+						knowledgeTips += `<a class="explainTips">` + item  + '</a>'
+						setTimeout(()=>{
+							const explainTips = document.getElementsByClassName('explainTips')
+							for (let i = 0, len = explainTips.length|0; i < len; i = i + 1 | 0) {
+								explainTips[i].addEventListener("click", handleNeedExplainTips)
+							}
+						}, 1000)
+					} else if (i > 0) {
+						knowledgeTips += item
+					}
+					knowledgeTips += temps[i]
+				}
+				knowledge = knowledgeTips
+			}
+		}
+		return knowledgeTips
+	}
+
 
 	const initStressBar = () => {
 		if(JSON.stringify(stressDetail) === '{}' || !stressDetail) return
@@ -470,98 +613,126 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		if(sleepData) {
 			sleepQuality = getSleepQuality();
 		} 
-		// const chartId = "stressDetailChart" + messageNum;
-		const chartId = "stressDetailChart";
-		// @ts-ignores
-		const stressDetailChart = echarts.init(document.getElementById(chartId))
+		const chartId = "stressDetailChart" + messageNum;
+		// const chartId = "stressDetailChart";
+		console.log("--->chartId", chartId)
+		let stressBarDiv = document.getElementById(chartId);
+		let stressDetailChart;
+		if (stressBarDiv) {
+			stressDetailChart = echarts.init(stressBarDiv);
+		} else {
+			const stressBarList = document.getElementsByClassName('stressDetailChart');
+			if (stressBarList.length > 0) {
+				 const lastStressBar = stressBarList[stressBarList.length-1] as HTMLElement;
+				 stressDetailChart = echarts.init(lastStressBar);
+			} else {
+				return;
+			}		
+		}
+
+		// const stressDetailChart = echarts.init(stressBarDiv);
 
 		stressDetailChart.setOption({
 			tooltip: {
+				enterable: true,
+				 // item 图形触发， axis 坐标轴触发， none 不触发
 				trigger: 'axis',
 				axisPointer: {
-					type: 'shadow'
+					type: 'line',
 				},
 				textStyle: {
-					fontSize: 8,
-					lineHeight: 56,
+					fontSize: 12,
+					lineHeight: 48,
 				},
+				hideDelay: 100,
+				// triggerOn: 'click',
+				confine: true, 
+				appendToBody: true,
+				// alwaysShowContent: true, 	//鼠标离开区域不消失
 				formatter: (params: any) => {
-					const value = params[0].value;	//压力值
-					const index = params[0].dataIndex;
+					let item;
+					if (params instanceof Array) {
+						item = params[0]
+					} else {
+						item = params
+					}
+					const value = item.value;	//压力值
+					const index = item.dataIndex;
+					console.log('index index', index)
 					let sleepQualityText;
 					if (sleepQuality && sleepQuality.length > 0) {
 						sleepQualityText = sleepQuality[0]
 					}
 					
 					if (index < 5 && isChronicStress) {
-						return getStressTips(params[0]) 
-						+ SCENE_KNOWLEDGE.CHRONIC_STRESS
+						return getStressTips(item) 
+						+ getKnowledgeTips(SCENE_KNOWLEDGE.CHRONIC_STRESS)
 						+	'</div>'
 					} else if(index < 5 && !isExerciseEnough) {
-						return getStressTips(params[0]) 
-						+ SCENE_KNOWLEDGE.A_WEEK_EXERCISE_IS_NOT_ENOUGH
+						return getStressTips(item) 
+						+ getKnowledgeTips(SCENE_KNOWLEDGE.A_WEEK_EXERCISE_IS_NOT_ENOUGH)
 						+	'</div>'
 					} else if (isHighIntensityExerciseEffectSleep && wakeUp15MinutesIndex?.indexOf(index)! >= 0) {
-						return getStressTips(params[0]) 
-						+ SCENE_KNOWLEDGE.IS_HIGH_INTENSITY_EXERCISE_EFFECT_SLEEP
+						return getStressTips(item) 
+						+getKnowledgeTips(SCENE_KNOWLEDGE.IS_HIGH_INTENSITY_EXERCISE_EFFECT_SLEEP)
 						+	'</div>'
 					} else if (wakeUp15MinutesIndex?.indexOf(index)! >= 0 ) {	//睡醒之后的十五分钟内
+						console.log('--->reasons', sleepQuality[1])
 						if(sleepQuality[0] === SLEEP_QUALITY.BAD) {
-							console.log('--->reasons', sleepQuality[1])
 							const reason = sleepQuality[1][Math.floor(Math.random() * sleepQuality[1].length)]; 
 							// @ts-ignore
-							sleepQualityText = sleepQualityText.replace('[原因]', reason);
+							sleepQualityText = getKnowledgeTips(sleepQualityText.replace('[原因]', reason));
 						}
-						// console.log('--->sleepQualityText', sleepQualityText)
-						return getStressTips(params[0]) 
-						+ sleepQualityText
+						return getStressTips(item) 
+						+ getKnowledgeTips(sleepQualityText)
 						+	'</div>'
 					} else if (afterExerciseIndex?.indexOf(index)! >= 0) {	//运动后压力升高的十五分钟内
-						return getStressTips(params[0])
-						+ SCENE_KNOWLEDGE.AFTER_EXERCISE
+						return getStressTips(item)
+						+ getKnowledgeTips(SCENE_KNOWLEDGE.AFTER_EXERCISE)
 						+	'</div>'
 					} else if (digestionIndex?.indexOf(index)! >= 0) {	//可能的消化时间
-						return getStressTips(params[0])
-						+ SCENE_KNOWLEDGE.DIGESTION
+						return getStressTips(item)
+						+ getKnowledgeTips(SCENE_KNOWLEDGE.DIGESTION)
 						+	'</div>'
 					} else if (stressKeys.length - index <= 5) {	//一整天结束的最后15分钟
-						return getStressTips(params[0])
-						+ overallDayStress
+						console.log('---->overallDayStress',overallDayStress, getKnowledgeTips(overallDayStress))
+						return getStressTips(item)
+						+ getKnowledgeTips(overallDayStress)
 						+	'</div>'
 					} else if (isRelaxLongerDuringSleep && index > sleepStartIndex && index < sleepEndIndex! && value > 0 && value <= 25) {
-						return getStressTips(params[0])
-						+ SCENE_KNOWLEDGE.MORE_RELAX_TIME_DURING_SLEEP
+						return getStressTips(item)
+						+ getKnowledgeTips(SCENE_KNOWLEDGE.MORE_RELAX_TIME_DURING_SLEEP)
 						+	'</div>'
 					} else if (isShorterSleepTimeAndHigherWorkStress && workStressIndex?.indexOf(index)! > 0) {
-						return getStressTips(params[0])
-						+ SCENE_KNOWLEDGE.SLEEP_SHORTER_DIURNAL_STRESS_HIGHER
+						return getStressTips(item)
+						+ getKnowledgeTips(SCENE_KNOWLEDGE.SLEEP_SHORTER_DIURNAL_STRESS_HIGHER)
 						+	'</div>'
 					} else if (isLongerSleepTimeAndLowerWorkStress && workStressIndex?.indexOf(index)! > 0) {
-						return getStressTips(params[0])
-						+ SCENE_KNOWLEDGE.SLEEP_LONGER_DIURNAL_STRESS_LOWER
+						return getStressTips(item)
+						+getKnowledgeTips(SCENE_KNOWLEDGE.SLEEP_LONGER_DIURNAL_STRESS_LOWER)
 						+	'</div>'
 					// @ts-ignore
 					} else if ([].concat.apply([], randomKnowledge).indexOf(index) >= 0) {
 						for (let i = 0; i < randomKnowledge.length; i++) {
 							if(randomKnowledge[i].indexOf(index) >= 0) {
-								return getStressTips(params[0])
-									+  RANDOM_KNOWLEDGE[i]
+								return getStressTips(item)
+									+  getKnowledgeTips(RANDOM_KNOWLEDGE[i])
 									+ '</div>'
 							}
 						}
-						return params[0].name + '<br/><br/>' 
-							+ params[0].marker
-							+ params[0].seriesName + ' : ' + value + '<br/>'
+						return item.name + '<br/><br/>' 
+							+ item.marker
+							+ item.seriesName + ' : ' + value + '<br/>'
 					} else if (value === -10) {
-						return params[0].name + '<br/><br/>' 
-							+ params[0].marker + "活动中"
+						return item.name + '<br/><br/>' 
+							+ item.marker + "活动中"
 					} else if (value === -1) {
-						return params[0].name + '<br/><br/>' 
+						return item.name + '<br/><br/>' 
 							+ "无法测量"
 					}	else {
-						return params[0].name + '<br/><br/>' 
-							+ params[0].marker
-							+ params[0].seriesName + ' : ' + value + '<br/>'
+						return item.name + '<br/><br/>' 
+							+ item.marker
+							+ item.seriesName + ' : ' + value + '<br/>'
 						// const flag = Math.floor(Math.random() * 2);
 						// if(index > sleepEndIndex! && flag && randomNum < RANDOM_KNOWLEDGE.length) {
 						// 	console.log('--->index', index)
@@ -575,7 +746,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 						// 	+ '</div>'
 						// }
 					}
-				}
+				},
 				// formatter: (params: any) => {
 				// 	const value = params[0].value;
 				// 	// console.log('exerciseIndex', exerciseIndex)
@@ -629,6 +800,9 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 				// 	} 
 				// },
 			},
+			grid: {
+				left: 30
+			},
 			xAxis: {
 				data: Object.keys(stressDetail.timeOffsetStressLevelValues).map(function (item) {
 					return secondToTime(item);
@@ -640,10 +814,12 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 					formatter: (value: any, index: number) => {
 						const activities = activitiesMap? Array.from(activitiesMap!.keys()) : [];
 						if (index === sleepStartIndex) {
+							console.log('--->sleepStartIndex', index, " ", sleepStartIndex);
 							return '{fallASleepValue|} '+ timestampToStr(sleepStartTime, FORMATE_TIME.HOUR_MINUTE);
 						} else if(index === sleepEndIndex) {
 							return '{getUpValue|} ' + timestampToStr(sleepEndTime, FORMATE_TIME.HOUR_MINUTE);
 						} else if(index === nextSleepStartIndex) {
+							console.log('--->sleepStartIndex', index, " ", sleepStartIndex);
 							return '{fallASleepValue|} '+ timestampToStr(nextSleepStartTime!, FORMATE_TIME.HOUR_MINUTE);
 						} else if(activities!.indexOf(index) >= 0) {
 							const activityType = activitiesMap?.get(index).activityType.toLowerCase();
@@ -729,7 +905,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 						width: 1
 					}
 				},
-				offset: -35,
+				offset: -33,
 			},
 			yAxis: {
 				name: '压力值',
@@ -754,6 +930,21 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 					},
 				}
 			},
+			dataZoom: [
+				{   // 这个dataZoom组件，也控制x轴。
+						type: 'slider', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+						start: 0,      // 左边在 10% 的位置。
+						end: 100,         // 右边在 60% 的位置。
+						height: 15,
+						xAxisIndex: [0]
+				},
+				{   // 这个dataZoom组件，也控制x轴。
+					type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+					start: 0,      // 左边在 10% 的位置。
+					end: 100,         // 右边在 60% 的位置。
+					xAxisIndex: [0]
+			}
+			],
 			toolbox: {
 				left: 'center',
 				feature: {
@@ -768,7 +959,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 				left: "center",                              //组件离容器左侧的距离,'left', 'center', 'right','20%'
 				top: "bottom",                                   //组件离容器上侧的距离,'top', 'middle', 'bottom','20%'
 				right: "auto",                               //组件离容器右侧的距离,'20%'
-				bottom: "auto",                              //组件离容器下侧的距离,'20%'
+				bottom: "0%",                              //组件离容器下侧的距离,'20%'
 				orient: "horizontal",                         //图例排列方向
 				textGap: 5, //文字到图标的距离
 				pieces: [
@@ -838,11 +1029,11 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		chartData.forEach(((item: any) =>{
 			target.set(item.name, item.value)
 		}))
-		// const chartId = "sleepPie" + messageNum;
-		const chartId = "sleepPie";
-		// @ts-ignores
-		const sleepPie = echarts.init(document.getElementById(chartId))
-
+		const sleepPieId = "sleepPie" + messageNum;
+		// const sleepPieId = "sleepPie";
+		const sleepPieDiv = document.getElementById(sleepPieId);
+		if (!sleepPieDiv) return
+		const sleepPie = echarts.init(sleepPieDiv)
 		sleepPie.setOption({
 			animation: false, // 取消动画
 			title: {
@@ -863,7 +1054,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 			// @ts-ignore
 			legend: {
 				orient: 'vertical',
-				right: 20,
+				right: 6,
 				bottom: 0,
 				data: ['深睡期', '浅睡期', '快速眼动睡眠', '清醒'],
 				formatter: (name) => {
@@ -881,18 +1072,19 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 					name: '睡眠',
 					type: 'pie',
 					radius: ['60%', '75%'],	 // 设置环形饼状图， 第一个百分数设置内圈大小，第二个百分数设置外圈大小
-					center: ['50%', '60%'],	 // 设置饼状图位置，第一个百分数调水平位置，第二个百分数调垂直位置
+					center: ['24%', '60%'],	 // 设置饼状图位置，第一个百分数调水平位置，第二个百分数调垂直位置
 					// avoidLabelOverlap: false,
 					label: {
 						show: true,
 						position: 'center',
 						formatter: secondToHourMinute(sleepChartData.durationInSeconds),
-						fontSize: 13
+						fontSize: 12
 					},
 					data: chartData
 				}
 			]
 		})
+
 		sleepPie.on('legendselectchanged',params => {
 			sleepPie.setOption({
 				// @ts-ignore
@@ -963,10 +1155,11 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 		}
 		console.log(sleepTimesList, sleepValueList)
 
-		// const chartId = "sleepBar" + messageNum;
-		const chartId = "sleepBar";
-			// @ts-ignores
-		const sleepBar = echarts.init(document.getElementById(chartId))
+		const chartId = "sleepBar" + messageNum;
+		// const chartId = "sleepBar";
+		const sleepBarDiv = document.getElementById(chartId);
+		if (!sleepBarDiv) return
+		const sleepBar = echarts.init(sleepBarDiv)
 
 		sleepBar.setOption({
 			xAxis: {
@@ -1016,14 +1209,31 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 					},
 				}
 			},
+			// dataZoom: [
+			// 	{   // 这个dataZoom组件，默认控制x轴。
+			// 		type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+			// 		show:true,
+			// 		start: 10,      // 左边在 10% 的位置。
+			// 		end: 60         // 右边在 60% 的位置。
+			// 	},
+			// 	{   // 这个dataZoom组件，也控制x轴。
+			// 			type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+			// 			show:true,
+			// 			start: 10,      // 左边在 10% 的位置。
+			// 			end: 60         // 右边在 60% 的位置。
+			// 	}
+			// ],
 			grid: {
 				left: 80
 			},
+			confine: true, 
 			tooltip: {
 				trigger: 'axis',
 				axisPointer: {
 					type: 'shadow'
 				},
+				// triggerOn: 'click',
+				// alwaysShowContent: true, 	//鼠标离开区域不消失
 				textStyle: {
 					fontSize: 12,
 					lineHeight: 56,
@@ -1232,12 +1442,48 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 
 	const showStressDetailChart = () => {
 		const date = dateToString(new Date(), "yyyy-MM-dd");
-		// showStressChartByDate('2021-01-29', false);
+		// showStressChartByDate('2021-02-21', false);
 		// setStressDate('2021-01-29')
 		showStressChartByDate(date, false);
 	}
 
-
+	const handleMessgeItem = (item: any) => {
+		let userMessage = {
+			id: messageNum + 1,
+			date: formatDate(new Date()),
+			userId: user.userId,
+			username: user.username,
+			avatar: user.avatar,
+			text: item.name || '',
+			items: null,
+			image: ''
+		}
+		console.log('--->sendMessage', userMessage)
+		setMessages(messages => [...messages, userMessage])
+		setMessageNum(messageNum => messageNum + 1)
+		scrollToBottom()
+		setUserMessageText('')
+		let responseText = ''
+		if (item.description) {
+			responseText += item.description
+		}
+		if (item.method) {
+			responseText += item.method
+		}
+		let responseMessage = {
+			id: messageNum + 1,
+			date: formatDate(new Date()),
+			userId: chatbot.id,
+			username: chatbot.username,
+			avatar: chatbot.avatar,
+			text: responseText || '这个问题我还不会哦，你可以问我其他问题~',
+			items: null,
+			image: item.image || ''
+		}
+		setMessages(messages => [...messages, responseMessage])
+		setMessageNum(messageNum => messageNum + 1)
+		scrollToBottom()
+	}
 	// const showSleepPie = () => {
 	// 	setSleepChartLoading(true);
 	// 	user.userId = 11
@@ -1338,8 +1584,6 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 
 	const getSleepQuality = () => {
 		const sleepDuration = sleepData.durationInSeconds - sleepData.unmeasurableSleepInSeconds;
-		console.log('--->sleepData', sleepData)
-		console.log('unmeasurableSleepDurationInSeconds', sleepData.unmeasurableSleepInSeconds)
 		const awakenings = sleepData.sleepLevelsMap?.awake?.length;
 		const fallBackAsleepArray = sleepData.sleepLevelsMap?.awake?.map((item: any) =>
 			item.endTimeInSeconds - item.startTimeInSeconds
@@ -1353,7 +1597,6 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 			&& remPercentage >= 0.21 && remPercentage <= 0.3 && deepPercentage >= 0.16 && deepPercentage <= 0.2) {
 			return [SLEEP_QUALITY.GOOD];
 		}
-		console.log('---->sleepDuration', sleepDuration)
 		if(sleepDuration < 5*60*60) {		
 			reasonsPoor.push(REASONS_FOR_POOR_SLEEP.SLEEP_SHORT);
 		}
@@ -1698,22 +1941,35 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 			</IonHeader>
 			<IonContent fullscreen ref={messagesRef}>
 			{/* <div id="sleepBar" style={{width: "650px", height: "300px", marginTop: "100px"}}></div> */}
-				{messages && messages.map((message: Message, index: number) => ( 
+				{messages && messages.map((message: Message, index: number) => (
 					<div className="message-wrapper" key={index}>
 						{ user.userId !== message.userId && 
 							<div>
-								<img className="profile-pic left" src={chatbot.avatar} />
+								{/* <img className="profile-pic left" src={chatbot.avatar} /> */}
 								{ message.text !== "stressDetailChart" && message.text !== "sleepChart" && 
-									<div className="chat-bubble left slide-left">
+									<div className="chat-bubble left slide-left"  style={{marginBottom: "10px"}} >
+										{message.image && <img src={message.image} style={{width: '280px', maxHeight: '280px', borderRadius: '5px'}}></img>}
 										<div className="message" style={{whiteSpace: "pre-line"}}>{message.text}
+											{message.items && message.items.map((item: any, index: number) => (
+											 	<>
+												 	{index !== (message.items.length - 1)  &&
+														<a onClick={() => handleMessgeItem(item)}>{item.name}、</a>
+													}
+													{ index === (message.items.length - 1) &&
+														<a onClick={() => handleMessgeItem(item)}>{item.name}。</a>
+													}
+												</>
+											))}
 										<br/>
-										
-										<a href="javascript:void(0)" onClick={() => showStressDetailChart()}>查看今天的压力数据</a>
-										{/* <NavLink to="#" onClick={() => showStressDetailChart()}>查看今天的压力数据</NavLink> */}
-										<br/>
-										{/* <NavLink to="#" onClick={() => showSleepPie()}>查看今天的睡眠数据</NavLink> */}
-										{/* <a href="javascript:void(0)" onClick={() => showSleepPie()}>查看今天的睡眠数据</a> */}
-										<a href="javascript:void(0)" onClick={() => showSleepChartByDate(dateToString(new Date(), "yyyy-MM-dd"), false)}>查看今天的睡眠数据</a>
+										<div style={{marginTop: '10px'}}>
+											<a href="javascript:void(0)" onClick={() => showStressDetailChart()}>查看今天的压力数据</a>
+											{/* <NavLink to="#" onClick={() => showStressDetailChart()}>查看今天的压力数据</NavLink> */}
+											<br/>
+											{/* <NavLink to="#" onClick={() => showSleepPie()}>查看今天的睡眠数据</NavLink> */}
+											{/* <a href="javascript:void(0)" onClick={() => showSleepPie()}>查看今天的睡眠数据</a> */}
+											<a href="javascript:void(0)" onClick={() => showSleepChartByDate(dateToString(new Date(), "yyyy-MM-dd"), false)}>查看今天的睡眠数据</a>
+											{/* <a href="javascript:void(0)" onClick={() => handleNeedExplainTips('aaa')}>测试</a> */}
+										</div>
 										</div>
 										<div className="message"> </div>
 										<div className="message-detail left">
@@ -1729,12 +1985,18 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 												<div>
 													{/* {isHasStressDataMap.get(message.id) && <> */}
 													{isHasStressData && <>
-														{/* <div id={"stressPie" + message.id} style={{ width: "700px", height: "150px" }}></div> */}
-														<div id="stressPie" style={{ width: "700px", height: "150px" }}></div>
-														{/* <div id={"stressDetailChart" + message.id} style={{width: "700px", height: "300px"}}></div>	 */}
-														<div id="stressDetailChart" style={{width: "700px", height: "300px"}}></div>	
+														<div className="stressPie" id={"stressPie" + message.id}></div>
+														<div className="chartTips">
+															<div className="tips">
+																<div className="zoom zoom1">1. 柱状图支持双指或缩放条缩放；</div>
+																<div className="zoom zoom2">1. 柱状图支持鼠标滚轮或缩放条缩放；</div>
+																<div className="stressTooltip stressTooltip1">2. 手指触碰柱状图时有些时间段会显示压力知识，比如睡醒后、运动后、一天的最后等。</div>
+																<div className="stressTooltip stressTooltip2">2. 鼠标触碰柱状图时有些时间段会显示压力知识，比如睡醒后、运动后、一天的最后等。</div>
+															</div>
+															<div className="triangle"></div>
+														</div>
+														<div className="stressDetailChart" id={"stressDetailChart" + message.id}></div>	
 													</>}
-													{/* {!isHasStressDataMap.get(message.id) && */}
 													{!isHasStressData &&
 														<div>
 															<div style={{textAlign: "center", fontWeight: "bold"}}>{stressDate}</div>
@@ -1759,10 +2021,12 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 									<div className="chat-bubble left slide-left">
 										<Spin spinning={sleepChartLoading}>
 											{isHasSleepData && <>
-											{/* <div id={"sleepPie" + message.id} style={{ width: "700px", height: "150px" }}></div> */}
-											<div id="sleepPie" style={{ width: "700px", height: "150px" }}></div>
-											{/* <div id={"sleepBar" + message.id} style={{width: "700px", height: "300px"}}></div> */}
-											<div id="sleepBar" style={{width: "700px", height: "300px"}}></div>
+											<div className="sleepPie" id={"sleepPie" + message.id}></div>
+											{/* <div id="sleepPie" style={{ width: "600px", height: "150px" }}></div> */}
+											{/* <div id="sleepPie"></div> */}
+											<div  className="sleepBar" id={"sleepBar" + message.id}></div>
+											{/* <div id="sleepBar" style={{width: "600px", height: "300px"}}></div> */}
+											{/* <div id="sleepBar"></div> */}
 											</>}
 											{!isHasSleepData &&
 												<div>
@@ -1785,7 +2049,7 @@ const Chat: React.FC<ChatProps> = ({ user, history }) => {
 						}
 						{ user.userId === message.userId && 
 							<div>
-								<img className="profile-pic right" src={user.avatar}/>
+								{/* <img className="profile-pic right" src={user.avatar}/> */}
 								<div className="chat-bubble right slide-right">
 									<div className="message">{message.text}
 									</div>

@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2020-12-24 13:55:50
+ * @LastEditTime: 2021-02-20 16:02:03
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \StressChatbot\src\index.tsx
+ */
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
@@ -9,3 +17,7 @@ ReactDOM.render(<App />, document.getElementById('root'));
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
+
+function test() {
+  alert('ok')
+}

@@ -41,7 +41,7 @@ button.ion-android-send {
 
 .message-detail {
 	white-space: nowrap;
-	font-size: 8px;
+	font-size: 13px;
 	font-weight: 100;
 	margin-top: 5px;
 	font-family: 'Helvetica';
@@ -101,6 +101,7 @@ img.profile-pic.right {
 
 .chat-bubble.left {
 	background-color: #eeeff0;
+	/* background-color: #fff; */
 	float: left;
 	margin-left: 55px;
 	/* margin-left: 10px; */
@@ -235,4 +236,128 @@ ion-footer {
 
 .nav {
 	padding-right: 10px;
+}
+
+.chat-bubble.left {
+	margin-left: 12px !important;
+}
+
+.chat-bubble.right {
+	margin-right: 12px !important;
+}
+
+
+.zoom {
+	display: none;
+}
+
+.stressTooltip {
+	display: none
+}
+
+@media screen and (max-width:960px){
+	.chat-bubble {
+		max-width: 90%;
+		/* min-width: 85%; */
+	}
+	.stressPie {
+		width: 86vw;
+		height: 20vh;
+	}
+	.stressDetailChart {
+		width: 95vw;
+		height: 40vh;
+	}
+	.sleepPie {
+		width: 86vw;
+		height: 20vh;
+	}
+	.sleepBar {
+		width: 90vw;
+		height: 40vh;
+	}
+	.zoom1 {
+		display: block
+	}
+	.zoom2 {
+		display: none
+	}
+	.stressTooltip1 {
+		display: block
+	}
+	.stressTooltip2 {
+		display: none
+	}
+}
+
+@media screen and (min-width:960px){
+	.chat-bubble {
+		max-width: 90%;
+		/* min-width: 85%; */
+	}
+	.stressPie {
+		width: 50vw;
+		height: 20vh;
+	}
+	.stressDetailChart {
+		width: 50vw;
+		height: 36vh;
+	}
+	.sleepPie {
+		width: 50vw;
+		height: 20vh;
+	}
+	.sleepBar {
+		width: 50vw;
+		height: 36vh;
+	}
+	.zoom1 {
+		display: none
+	}
+	.zoom2 {
+		display: block
+	}
+	.stressTooltip1 {
+		display: none
+	}
+	.stressTooltip2 {
+		display: block
+	}
+}
+
+.tips {
+	display: flex;
+	border: 1px solid #158ffe;
+	border-radius: 6px;
+	width: 260px;
+	padding: 4px;
+	font-size: 10px;
+	flex-direction: column;
+	/* background-color: #158ffe; */
+}
+
+.triangle{
+	/* width: 0;
+	height: 0;
+	border: 20px solid transparent;
+	border-top: 20px solid #158ffe;
+	/* border-top: 20px solid transparent;
+	border-top: 20px solid transparent; */
+
+	/* margin-right: 20px;  */
+}
+
+
+.chartTips {
+	display: flex;
+	flex-direction: column;
+  align-items: flex-end;
+	margin-right: 5px;
+	position: relative;
+  top: 24px;
+}
+
+.needExplainTips {
+	color: #158ffe;
+	border-bottom: 1px solid #158ffe;
 }
