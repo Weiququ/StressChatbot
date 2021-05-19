@@ -10,10 +10,11 @@ import './Menu.css'
 
 const routes = {
   unboundDevicePages: [
-    { title: '绑定Garmin设备', path: '/bindDevice', icon: watch }
+    { title: '绑定Garmin设备', path: '/bindDevice', icon: watch },
+    { title: '我的健康数据', path: '/myHealthData', icon: analytics }
   ],
   boundDevicePages: [
-    // { title: '我的健康数据', path: '/myHealthData', icon: analytics },
+    { title: '我的健康数据', path: '/myHealthData', icon: analytics },
     // { title: '解绑Garmin设备', path: '/unbindDevice', icon: watch }
   ],
   loggedInPages: [

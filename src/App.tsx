@@ -104,8 +104,7 @@ const IonicApp: React.FC<IonicAppProps> = ({ loadUserData, setIsLoggedIn, setUse
             <Route exact path="/stressDetail" component={StressDetail} />
             <Route exact path="/recordActivity" component={RecordActivity} />
             <Route exact path="/singleDay" component={SingleDay} />
-            {/* <Route exact path="/multiDay" component={MultiDay} />
-            <Route exact path="/annotationSettings" component={AnnotationSettings} /> */}
+            {/* <Route exact path="/annotationSettings" component={AnnotationSettings} />  */}
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>

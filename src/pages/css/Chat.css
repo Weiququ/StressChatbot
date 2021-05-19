@@ -336,18 +336,6 @@ ion-footer {
 	/* background-color: #158ffe; */
 }
 
-.triangle{
-	/* width: 0;
-	height: 0;
-	border: 20px solid transparent;
-	border-top: 20px solid #158ffe;
-	/* border-top: 20px solid transparent;
-	border-top: 20px solid transparent; */
-
-	/* margin-right: 20px;  */
-}
-
-
 .chartTips {
 	display: flex;
 	flex-direction: column;

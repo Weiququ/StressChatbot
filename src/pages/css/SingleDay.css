@@ -1,0 +1,156 @@
+#tips {
+	display: flex;
+	border: 1px solid #158ffe;
+	border-radius: 6px;
+	/* width: 260px; */
+	padding: 4px;
+	font-size: 10px;
+	flex-direction: column;
+	/* background-color: #158ffe; */
+}
+
+.date {
+  display: flex;
+  justify-content: center;
+}
+
+.curDate {
+  /* text-align: center; */
+  font-weight: bolder;
+  color: #000;
+}
+
+.nav img {
+  width: 24px;
+}
+
+.nav {
+  padding-right: 0px;
+}
+
+.tips {
+	display: flex;
+	border: 1px solid #158ffe;
+	border-radius: 6px;
+	padding: 4px;
+	font-size: 10px;
+	flex-direction: column;
+	width: 98%;
+	justify-content: flex-end;
+	margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+
+@media screen and (max-width:960px){
+	.stressPie {
+		width: 82vw;
+		height: 16vh;
+	}
+	.stressDetailChart {
+		width: 90vw;
+		height: 40vh;
+	}
+}
+
+@media screen and (min-width:960px){
+	.stressPie {
+		width: 50vw;
+		height: 20vh;
+	}
+	.stressDetailChart {
+		width: 50vw;
+		height: 36vh;
+	}
+}
+
+.label {
+  display: flex;
+  margin-top: 8px;
+  justify-content: flex-end;
+  margin-bottom: -24px;
+  z-index: 100;
+}
+
+.helpIcon {
+  width: 20px;
+  margin-right: 4px;
+}
+
+.labelTitle {
+  font-size: 13px;
+  color: #000;
+}
+
+.labelIcon {
+  width: 16px;
+  height: 18px;
+  margin-left: 4px;
+}
+
+.popoverContent {
+  font-size: 8px;
+  padding: 5px;
+}
+
+.my-modal{
+	width: 300px;
+	height: 140px;
+	border-radius: 6px;
+	border: rgb(95, 150, 212) 1px solid;
+	text-align: center;
+	margin: 280px auto;
+}
+
+
+.modalButton {
+	width: 36px;
+	height: 20px;
+}
+
+.stateConfirm, .modalClose {
+	width: 20px;
+	height: 20px;
+}
+
+img {
+	max-width: 100px !important;
+}
+
+.my-modal .header {
+	display: flex;
+	justify-content: flex-end;
+	height:32px;
+}
+
+.modalTitle {
+	margin-right: auto;
+	margin-left: 12px;
+	color: #000;
+}
+
+.stateTime {
+	text-align: left;
+	margin-left: 12px;
+	color: #000;
+}
+
+.stateRadio {
+	margin-top: 16px;
+	width: 100%;
+	height: 80px;
+	overflow-x: scroll;
+	overflow-y: hidden;
+	white-space: nowrap;
+}
+
+.radio {
+	margin-right: 12px;	
+	display:inline-block;
+	box-sizing: border-box;
+}
+
+.stateRadio img {
+	width: 28px;
+	height: 28px;
+}
